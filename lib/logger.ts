@@ -10,7 +10,17 @@ export type UsageEvent =
   | "onboarding_complete"
   | "application_create"
   | "application_update"
-  | "application_delete";
+  | "application_delete"
+  | "calendar_event_create"
+  | "calendar_event_update"
+  | "calendar_event_delete"
+  | "folder_create"
+  | "folder_delete"
+  | "document_create"
+  | "document_update"
+  | "document_delete"
+  | "document_upload"
+  | "admin_view";
 
 export async function logEvent(
   event: UsageEvent,

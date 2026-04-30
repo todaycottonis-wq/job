@@ -153,6 +153,7 @@ export interface Database {
           id: string;
           user_id: string;
           application_id: string | null;
+          folder_id: string | null;
           type: DocumentType;
           title: string;
           content: string | null;
@@ -164,6 +165,7 @@ export interface Database {
           id?: string;
           user_id: string;
           application_id?: string | null;
+          folder_id?: string | null;
           type: DocumentType;
           title: string;
           content?: string | null;
@@ -175,12 +177,37 @@ export interface Database {
           id?: string;
           user_id?: string;
           application_id?: string | null;
+          folder_id?: string | null;
           type?: DocumentType;
           title?: string;
           content?: string | null;
           file_url?: string | null;
           created_at?: string;
           updated_at?: string;
+        };
+        Relationships: [];
+      };
+      folders: {
+        Row: {
+          id: string;
+          user_id: string;
+          name: string;
+          emoji: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          name: string;
+          emoji?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          name?: string;
+          emoji?: string | null;
+          created_at?: string;
         };
         Relationships: [];
       };
@@ -318,6 +345,7 @@ export type JobApplication =
 export type ApplicationEvent =
   Database["public"]["Tables"]["application_events"]["Row"];
 export type Document = Database["public"]["Tables"]["documents"]["Row"];
+export type Folder = Database["public"]["Tables"]["folders"]["Row"];
 export type AiFeedback = Database["public"]["Tables"]["ai_feedback"]["Row"];
 export type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 export type UsageLog = Database["public"]["Tables"]["usage_logs"]["Row"];
