@@ -13,9 +13,50 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const APP_NAME = "JobTrack";
+const APP_DESC =
+  "취업 지원 현황 · 면접 일정 · 이력서·자소서까지 한 곳에서 관리하는 취준생 대시보드";
+const APP_URL =
+  process.env.NEXT_PUBLIC_APP_URL ?? "https://job-kappa-coral.vercel.app";
+
 export const metadata: Metadata = {
-  title: "JobTrack",
-  description: "취업 지원 현황을 한눈에 관리하세요",
+  metadataBase: new URL(APP_URL),
+  title: {
+    default: `${APP_NAME} · 취준 현황을 한눈에`,
+    template: `%s · ${APP_NAME}`,
+  },
+  description: APP_DESC,
+  applicationName: APP_NAME,
+  keywords: [
+    "취업",
+    "취준",
+    "지원 현황",
+    "면접",
+    "이력서",
+    "자기소개서",
+    "JobTrack",
+  ],
+  openGraph: {
+    type: "website",
+    locale: "ko_KR",
+    url: APP_URL,
+    siteName: APP_NAME,
+    title: `${APP_NAME} · 취준 현황을 한눈에`,
+    description: APP_DESC,
+  },
+  twitter: {
+    card: "summary",
+    title: `${APP_NAME} · 취준 현황을 한눈에`,
+    description: APP_DESC,
+  },
+  robots: { index: true, follow: true },
+  formatDetection: { telephone: false },
+};
+
+export const viewport = {
+  themeColor: "#3182F6",
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({

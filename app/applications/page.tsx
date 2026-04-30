@@ -118,9 +118,10 @@ export default function ApplicationsPage() {
         ))}
       </div>
 
-      {/* 테이블 */}
+      {/* 데스크탑 테이블 / 모바일 카드 */}
       <div className="mt-4 rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
-        <div className="grid grid-cols-[2fr_1fr_1fr_1fr_40px] gap-4 px-4 py-2.5 border-b border-zinc-100 dark:border-zinc-800 text-xs font-medium text-zinc-500 dark:text-zinc-400">
+        {/* 헤더 (md 이상에서만) */}
+        <div className="hidden md:grid grid-cols-[2fr_1fr_1fr_1fr_40px] gap-4 px-4 py-2.5 border-b border-zinc-100 dark:border-zinc-800 text-xs font-medium text-zinc-500 dark:text-zinc-400">
           <span>회사 / 직무</span>
           <span>상태</span>
           <span>지원일</span>
@@ -154,30 +155,62 @@ export default function ApplicationsPage() {
               <li
                 key={app.id}
                 onClick={() => openEdit(app)}
-                className="group grid grid-cols-[2fr_1fr_1fr_1fr_40px] gap-4 px-4 py-3 border-b border-zinc-50 dark:border-zinc-800/60 last:border-0 hover:bg-zinc-50 dark:hover:bg-zinc-800/40 cursor-pointer transition-colors"
+                className="group flex flex-col md:grid md:grid-cols-[2fr_1fr_1fr_1fr_40px] md:gap-4 md:items-center px-4 py-3 border-b border-zinc-50 dark:border-zinc-800/60 last:border-0 hover:bg-zinc-50 dark:hover:bg-zinc-800/40 cursor-pointer transition-colors"
               >
-                <div>
-                  <p className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
-                    {app.company_name}
-                  </p>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-                    {app.position}
-                  </p>
+                {/* Row 1 (모바일): 회사/직무 + 상태 + 삭제 한 줄 */}
+                <div className="flex items-start justify-between md:block">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-zinc-900 dark:text-zinc-50 truncate">
+                      {app.company_name}
+                    </p>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 truncate">
+                      {app.position}
+                    </p>
+                  </div>
+                  {/* 모바일에서만 status + delete 같은 줄에 */}
+                  <div className="md:hidden flex items-center gap-2 ml-3 flex-shrink-0">
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${APPLICATION_STATUS_COLORS[app.status]}`}
+                    >
+                      {APPLICATION_STATUS_LABELS[app.status]}
+                    </span>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(app.id);
+                      }}
+                      disabled={deletingId === app.id}
+                      className="rounded p-1 text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all disabled:opacity-50"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
                 </div>
-                <div className="flex items-center">
+
+                {/* 상태 (데스크탑) */}
+                <div className="hidden md:flex items-center">
                   <span
                     className={`rounded-full px-2 py-0.5 text-xs font-medium ${APPLICATION_STATUS_COLORS[app.status]}`}
                   >
                     {APPLICATION_STATUS_LABELS[app.status]}
                   </span>
                 </div>
-                <div className="flex items-center text-xs text-zinc-500 dark:text-zinc-400">
+
+                {/* 날짜 (모바일은 한 줄로 / 데스크탑은 각 컬럼) */}
+                <div className="flex md:hidden items-center gap-3 mt-2 text-[11px] text-zinc-500 dark:text-zinc-400">
+                  <span>지원 {app.applied_at ?? "—"}</span>
+                  <span className="text-zinc-300">·</span>
+                  <span>마감 {app.deadline ?? "—"}</span>
+                </div>
+                <div className="hidden md:flex items-center text-xs text-zinc-500 dark:text-zinc-400">
                   {app.applied_at ?? "—"}
                 </div>
-                <div className="flex items-center text-xs text-zinc-500 dark:text-zinc-400">
+                <div className="hidden md:flex items-center text-xs text-zinc-500 dark:text-zinc-400">
                   {app.deadline ?? "—"}
                 </div>
-                <div className="flex items-center justify-center">
+
+                {/* 데스크탑 삭제 버튼 */}
+                <div className="hidden md:flex items-center justify-center">
                   <button
                     onClick={(e) => {
                       e.stopPropagation();

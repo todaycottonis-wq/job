@@ -1,8 +1,11 @@
 "use server";
 
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
 import { logEvent } from "@/lib/logger";
+
+const ONB_COOKIE = "jt_onb";
 
 export async function login(
   _prevState: { error?: string } | undefined,
@@ -54,5 +57,7 @@ export async function logout() {
   const supabase = await createClient();
   await logEvent("logout");
   await supabase.auth.signOut();
+  // 다른 유저로 로그인 시 캐시 충돌 방지
+  (await cookies()).delete(ONB_COOKIE);
   redirect("/login");
 }
