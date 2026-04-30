@@ -8,6 +8,8 @@ import {
   Plus,
   Upload,
   Trash2,
+  ExternalLink,
+  NotebookText,
 } from "lucide-react";
 import type { Document, Folder, DocumentType } from "@/types/database";
 import { UploadModal } from "./upload-modal";
@@ -226,6 +228,21 @@ export function DocumentsView() {
   );
 }
 
+function isExternalUrl(url: string | null | undefined): boolean {
+  return !!url && /^https?:\/\//i.test(url);
+}
+function isNotionUrl(url: string | null | undefined): boolean {
+  if (!url) return false;
+  try {
+    const u = new URL(url);
+    return (
+      u.hostname.endsWith("notion.so") || u.hostname.endsWith("notion.site")
+    );
+  } catch {
+    return false;
+  }
+}
+
 function DocumentCard({
   doc,
   onDelete,
@@ -233,25 +250,65 @@ function DocumentCard({
   doc: Document;
   onDelete: () => void;
 }) {
-  return (
-    <div className="group relative rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 p-4 hover:shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all">
-      <div className="flex items-start gap-2.5">
-        <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
+  const isLink = isExternalUrl(doc.file_url);
+  const notion = isNotionUrl(doc.file_url);
+
+  const inner = (
+    <div className="flex items-start gap-2.5">
+      <div
+        className={`flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center ${
+          notion
+            ? "bg-zinc-900 dark:bg-zinc-100"
+            : "bg-zinc-100 dark:bg-zinc-800"
+        }`}
+      >
+        {notion ? (
+          <NotebookText size={16} className="text-white dark:text-zinc-900" />
+        ) : (
           <FileText size={16} className="text-zinc-500" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium truncate">{doc.title}</p>
-          <p className="text-xs text-zinc-400 mt-0.5">
-            {TYPE_LABEL[doc.type]}
-          </p>
-        </div>
-        <button
-          onClick={onDelete}
-          className="opacity-0 group-hover:opacity-100 rounded p-1 text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
-        >
-          <Trash2 size={12} />
-        </button>
+        )}
       </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium truncate flex items-center gap-1">
+          {doc.title}
+          {isLink && (
+            <ExternalLink size={11} className="text-zinc-400 flex-shrink-0" />
+          )}
+        </p>
+        <p className="text-xs text-zinc-400 mt-0.5">
+          {notion ? "노션 · " : ""}
+          {TYPE_LABEL[doc.type]}
+        </p>
+      </div>
+      <button
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onDelete();
+        }}
+        className="opacity-0 group-hover:opacity-100 rounded p-1 text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
+        aria-label="삭제"
+      >
+        <Trash2 size={12} />
+      </button>
     </div>
   );
+
+  const wrapperCls =
+    "group relative rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 p-4 hover:shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all block";
+
+  if (isLink) {
+    return (
+      <a
+        href={doc.file_url!}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={wrapperCls}
+      >
+        {inner}
+      </a>
+    );
+  }
+
+  return <div className={wrapperCls}>{inner}</div>;
 }
