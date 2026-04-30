@@ -59,7 +59,7 @@ export function Sidebar() {
       >
         <div className="flex h-14 items-center justify-between px-4 border-b border-zinc-200 dark:border-zinc-800">
           <span className="text-base font-semibold tracking-tight">
-            JobTrack
+            Career up
           </span>
           <button
             type="button"

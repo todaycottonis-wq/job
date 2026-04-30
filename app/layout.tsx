@@ -15,7 +15,8 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const APP_NAME = "JobTrack";
+const APP_NAME = "Career up";
+const APP_NAME_KO = "커리업";
 const APP_DESC =
   "취업 지원 현황 · 면접 일정 · 이력서·자소서까지 한 곳에서 관리하는 취준생 대시보드";
 const APP_URL =
@@ -24,8 +25,8 @@ const APP_URL =
 export const metadata: Metadata = {
   metadataBase: new URL(APP_URL),
   title: {
-    default: `${APP_NAME} · 취준 현황을 한눈에`,
-    template: `%s · ${APP_NAME}`,
+    default: `${APP_NAME_KO} (${APP_NAME}) · 취준 현황을 한눈에`,
+    template: `%s · ${APP_NAME_KO}`,
   },
   description: APP_DESC,
   applicationName: APP_NAME,
@@ -36,19 +37,20 @@ export const metadata: Metadata = {
     "면접",
     "이력서",
     "자기소개서",
-    "JobTrack",
+    "Career up",
+    "커리업",
   ],
   openGraph: {
     type: "website",
     locale: "ko_KR",
     url: APP_URL,
     siteName: APP_NAME,
-    title: `${APP_NAME} · 취준 현황을 한눈에`,
+    title: `${APP_NAME_KO} · 취준 현황을 한눈에`,
     description: APP_DESC,
   },
   twitter: {
     card: "summary",
-    title: `${APP_NAME} · 취준 현황을 한눈에`,
+    title: `${APP_NAME_KO} · 취준 현황을 한눈에`,
     description: APP_DESC,
   },
   robots: { index: true, follow: true },

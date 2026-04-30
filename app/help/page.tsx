@@ -3,7 +3,7 @@ export default function HelpPage() {
     <div className="p-6 max-w-2xl">
       <h1 className="text-2xl font-semibold tracking-tight mb-1">도움말</h1>
       <p className="text-sm text-zinc-500 dark:text-zinc-400">
-        JobTrack 기능 사용법을 안내합니다.
+        커리업 기능 사용법을 안내합니다.
       </p>
 
       <div className="mt-6 space-y-4">

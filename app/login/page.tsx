@@ -24,10 +24,10 @@ export default function LoginPage() {
       <div className="w-full max-w-sm space-y-6 p-8 bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border border-zinc-200 dark:border-zinc-800">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
-            {isLogin ? "Sign in" : "Create account"}
+            {isLogin ? "로그인" : "회원가입"}
           </h1>
           <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-            {isLogin ? "Welcome back to JobTrack" : "Start tracking your job search"}
+            {isLogin ? "커리업에 다시 오신 걸 환영해요" : "취준의 첫 페이지를 함께 열어볼까요"}
           </p>
         </div>
 
@@ -37,7 +37,7 @@ export default function LoginPage() {
               htmlFor="email"
               className="text-sm font-medium text-zinc-700 dark:text-zinc-300"
             >
-              Email
+              이메일
             </label>
             <input
               id="email"
@@ -55,7 +55,7 @@ export default function LoginPage() {
               htmlFor="password"
               className="text-sm font-medium text-zinc-700 dark:text-zinc-300"
             >
-              Password
+              비밀번호
             </label>
             <input
               id="password"
@@ -81,21 +81,21 @@ export default function LoginPage() {
           >
             {pending
               ? isLogin
-                ? "Signing in..."
-                : "Creating account..."
+                ? "로그인 중..."
+                : "계정 생성 중..."
               : isLogin
-              ? "Sign in"
-              : "Create account"}
+              ? "로그인"
+              : "계정 만들기"}
           </button>
         </form>
 
         <p className="text-center text-sm text-zinc-500 dark:text-zinc-400">
-          {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
+          {isLogin ? "아직 계정이 없으신가요?" : "이미 계정이 있으신가요?"}{" "}
           <button
             onClick={() => setMode(isLogin ? "signup" : "login")}
             className="font-medium text-zinc-900 dark:text-zinc-50 hover:underline"
           >
-            {isLogin ? "Sign up" : "Sign in"}
+            {isLogin ? "회원가입" : "로그인"}
           </button>
         </p>
       </div>

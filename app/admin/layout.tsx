@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "관리자 — JobTrack",
+  title: "관리자 — Career up",
 };
 
 export default function AdminLayout({
@@ -13,7 +13,7 @@ export default function AdminLayout({
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
       <header className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
         <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-6">
-          <span className="text-sm font-semibold">JobTrack 관리자</span>
+          <span className="text-sm font-semibold">Career up 관리자</span>
           <a
             href="/"
             className="text-xs text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50 transition-colors"

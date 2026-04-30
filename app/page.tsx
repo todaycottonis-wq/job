@@ -92,7 +92,7 @@ export default async function DashboardPage() {
         <h1 className="text-2xl font-bold tracking-tight">대시보드</h1>
         <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">
           {isEmpty
-            ? "JobTrack에 오신 걸 환영해요. 첫 지원부터 등록해볼까요?"
+            ? "커리업에 오신 걸 환영해요. 첫 지원부터 등록해볼까요?"
             : "지원 현황과 다가오는 일정을 한눈에 보세요."}
         </p>
       </div>
