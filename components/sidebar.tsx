@@ -105,6 +105,17 @@ export function Sidebar() {
 
         <div className="border-t border-zinc-200 dark:border-zinc-800 p-2 space-y-0.5">
           <Link
+            href="/settings"
+            className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+              pathname?.startsWith("/settings")
+                ? "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-50"
+                : "text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800/60 dark:hover:text-zinc-50"
+            }`}
+          >
+            <Settings size={16} strokeWidth={1.75} />
+            환경설정
+          </Link>
+          <Link
             href="/help"
             className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
               pathname === "/help"

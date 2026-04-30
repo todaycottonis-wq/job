@@ -20,7 +20,12 @@ export type UsageEvent =
   | "document_update"
   | "document_delete"
   | "document_upload"
-  | "admin_view";
+  | "admin_view"
+  | "settings_view"
+  | "data_reset"
+  | "account_delete"
+  | "data_export"
+  | "theme_change";
 
 export async function logEvent(
   event: UsageEvent,

@@ -16,6 +16,11 @@ export default async function AdminPage() {
   since.setDate(since.getDate() - LOOKBACK_DAYS);
   const sinceIso = since.toISOString();
 
+  // 리텐션 계산용 (D1·D3·D7·D14 까지 보려면 더 긴 lookback)
+  const RETENTION_LOOKBACK = 30;
+  const retentionSince = new Date();
+  retentionSince.setDate(retentionSince.getDate() - RETENTION_LOOKBACK);
+
   const [
     { count: profilesCount },
     { count: applicationsCount },
@@ -24,6 +29,8 @@ export default async function AdminPage() {
     { data: recentLogs },
     { data: recentProfiles },
     { count: onboardedCount },
+    { data: allProfiles },
+    { data: retentionLogs },
   ] = await Promise.all([
     admin.from("profiles").select("*", { count: "exact", head: true }),
     admin.from("job_applications").select("*", { count: "exact", head: true }),
@@ -43,6 +50,11 @@ export default async function AdminPage() {
       .from("profiles")
       .select("*", { count: "exact", head: true })
       .not("onboarded_at", "is", null),
+    admin.from("profiles").select("user_id, created_at"),
+    admin
+      .from("usage_logs")
+      .select("user_id, created_at")
+      .gte("created_at", retentionSince.toISOString()),
   ]);
 
   return (
@@ -58,6 +70,8 @@ export default async function AdminPage() {
       logs={recentLogs ?? []}
       recentUsers={recentProfiles ?? []}
       lookbackDays={LOOKBACK_DAYS}
+      allProfiles={allProfiles ?? []}
+      retentionLogs={retentionLogs ?? []}
     />
   );
 }

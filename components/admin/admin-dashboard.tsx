@@ -31,6 +31,14 @@ interface ProfileRow {
   onboarded_at: string | null;
   created_at: string;
 }
+interface RetentionLogRow {
+  user_id: string | null;
+  created_at: string;
+}
+interface AllProfileRow {
+  user_id: string;
+  created_at: string;
+}
 interface Stats {
   users: number;
   onboarded: number;
@@ -38,6 +46,8 @@ interface Stats {
   documents: number;
   aiRequests: number;
 }
+
+const RETENTION_BUCKETS = [1, 3, 7, 14];
 
 const EVENT_COLORS: Record<string, string> = {
   signup: "bg-purple-100 text-purple-700",
@@ -92,12 +102,16 @@ export function AdminDashboard({
   logs,
   recentUsers,
   lookbackDays,
+  allProfiles,
+  retentionLogs,
 }: {
   adminEmail: string;
   stats: Stats;
   logs: LogRow[];
   recentUsers: ProfileRow[];
   lookbackDays: number;
+  allProfiles: AllProfileRow[];
+  retentionLogs: RetentionLogRow[];
 }) {
   // 일별 시계열: 최근 lookbackDays 일
   const dailySeries = useMemo(() => {
@@ -145,6 +159,39 @@ export function AdminDashboard({
     cutoff.setDate(cutoff.getDate() - 7);
     return logs.filter((l) => new Date(l.created_at) >= cutoff).length;
   }, [logs]);
+
+  // 리텐션: 가입 D일째 활동한 유저 / 가입한 지 D일 이상 지난 유저
+  const retentionData = useMemo(() => {
+    const now = Date.now();
+    const dayMs = 86400000;
+    return RETENTION_BUCKETS.map((d) => {
+      const cutoff = now - d * dayMs;
+      const eligible = allProfiles.filter(
+        (p) => new Date(p.created_at).getTime() <= cutoff
+      );
+      const active = eligible.filter((p) => {
+        const joinTs = new Date(p.created_at).getTime();
+        const winStart = joinTs + (d - 0.5) * dayMs;
+        const winEnd = joinTs + (d + 0.5) * dayMs;
+        return retentionLogs.some((l) => {
+          if (l.user_id !== p.user_id) return false;
+          const t = new Date(l.created_at).getTime();
+          return t >= winStart && t <= winEnd;
+        });
+      });
+      return {
+        label: `D${d}`,
+        rate:
+          eligible.length > 0
+            ? Math.round((active.length / eligible.length) * 100)
+            : 0,
+        active: active.length,
+        total: eligible.length,
+      };
+    });
+  }, [allProfiles, retentionLogs]);
+
+  const hasRetentionEligible = retentionData.some((r) => r.total > 0);
 
   const onboardingRate =
     stats.users === 0 ? 0 : Math.round((stats.onboarded / stats.users) * 100);
@@ -293,6 +340,80 @@ export function AdminDashboard({
           </div>
         </Card>
       </div>
+
+      {/* 리텐션 */}
+      <Card>
+        <CardHeader
+          title="가입 후 리텐션"
+          subtitle="가입 D일째 활동한 유저 비율 (최근 30일 데이터)"
+        />
+        {!hasRetentionEligible ? (
+          <p className="px-4 py-8 text-sm text-zinc-400 text-center">
+            가입자가 아직 충분히 누적되지 않았습니다. 며칠 더 운영해보세요.
+          </p>
+        ) : (
+          <div className="px-4 pb-4">
+            <div className="h-[200px] mt-2">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={retentionData}
+                  margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                >
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="#e4e4e7"
+                    vertical={false}
+                  />
+                  <XAxis
+                    dataKey="label"
+                    tick={{ fontSize: 11, fill: "#71717a" }}
+                    tickLine={false}
+                    axisLine={false}
+                  />
+                  <YAxis
+                    tick={{ fontSize: 11, fill: "#71717a" }}
+                    tickLine={false}
+                    axisLine={false}
+                    width={40}
+                    domain={[0, 100]}
+                    tickFormatter={(v) => `${v}%`}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      borderRadius: 12,
+                      border: "1px solid #e4e4e7",
+                      fontSize: 12,
+                    }}
+                    formatter={(v) => [`${v as number}%`, "리텐션"]}
+                  />
+                  <Bar
+                    dataKey="rate"
+                    fill="#3182F6"
+                    radius={[6, 6, 0, 0]}
+                    maxBarSize={60}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="grid grid-cols-4 gap-2 mt-3 text-center">
+              {retentionData.map((r) => (
+                <div
+                  key={r.label}
+                  className="rounded-lg bg-zinc-50 dark:bg-zinc-800/50 py-2"
+                >
+                  <p className="text-[10px] text-zinc-400 font-mono">
+                    {r.label}
+                  </p>
+                  <p className="text-base font-bold tracking-tight">{r.rate}%</p>
+                  <p className="text-[10px] text-zinc-400">
+                    {r.active} / {r.total}명
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </Card>
 
       {/* 최근 가입 + 활동 로그 */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
