@@ -26,7 +26,6 @@ export interface ApplicationFormData {
   position: string;
   status: ApplicationStatus;
   job_url: string;
-  salary_range: string;
   location: string;
   applied_at: string;           // YYYY-MM-DD or ""
   deadline: string;             // YYYY-MM-DD or ""

@@ -32,7 +32,6 @@ const EMPTY_FORM: ApplicationFormData = {
   position: "",
   status: "wishlist",
   job_url: "",
-  salary_range: "",
   location: "",
   applied_at: "",
   deadline: "",
@@ -52,7 +51,6 @@ export function ApplicationForm({
           position: initial.position,
           status: initial.status,
           job_url: initial.job_url ?? "",
-          salary_range: initial.salary_range ?? "",
           location: initial.location ?? "",
           applied_at: initial.applied_at ?? "",
           deadline: initial.deadline ?? "",
@@ -91,7 +89,6 @@ export function ApplicationForm({
           position: form.position.trim(),
           status: form.status,
           job_url: form.job_url || null,
-          salary_range: form.salary_range || null,
           location: form.location || null,
           applied_at: form.applied_at || null,
           deadline: form.deadline || null,
@@ -199,15 +196,6 @@ export function ApplicationForm({
               value={form.job_url}
               onChange={(e) => set("job_url", e.target.value)}
               placeholder="https://"
-              className={inputCls}
-            />
-          </Field>
-
-          <Field label="급여 범위">
-            <input
-              value={form.salary_range}
-              onChange={(e) => set("salary_range", e.target.value)}
-              placeholder="예) 5000-6000만원"
               className={inputCls}
             />
           </Field>
