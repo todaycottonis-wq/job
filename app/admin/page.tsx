@@ -1,17 +1,16 @@
-export default function DashboardPage() {
+export default function AdminPage() {
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-semibold tracking-tight mb-1">대시보드</h1>
+    <div>
+      <h1 className="text-2xl font-semibold tracking-tight mb-1">관리자 패널</h1>
       <p className="text-sm text-zinc-500 dark:text-zinc-400">
-        지원 현황과 일정을 한눈에 확인하세요.
+        사용자 및 시스템 설정을 관리합니다.
       </p>
 
-      <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
         {[
-          { label: "총 지원", value: "0" },
-          { label: "서류 통과", value: "0" },
-          { label: "면접 예정", value: "0" },
-          { label: "최종 합격", value: "0" },
+          { label: "총 사용자", value: "0" },
+          { label: "총 지원 건수", value: "0" },
+          { label: "AI 요청 수", value: "0" },
         ].map(({ label, value }) => (
           <div
             key={label}
@@ -24,8 +23,8 @@ export default function DashboardPage() {
       </div>
 
       <div className="mt-6 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
-        <p className="text-sm font-medium mb-3">최근 활동</p>
-        <p className="text-sm text-zinc-400">아직 활동 내역이 없습니다.</p>
+        <p className="text-sm font-medium mb-3">사용자 목록</p>
+        <p className="text-sm text-zinc-400">사용자가 없습니다.</p>
       </div>
     </div>
   );

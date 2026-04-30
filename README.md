@@ -1,36 +1,101 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# JobTrack
 
-## Getting Started
+취업 지원 현황을 한눈에 관리하는 앱. 지원 추적, 일정 관리, AI 피드백 기능을 제공합니다.
 
-First, run the development server:
+## 기술 스택
+
+- **프레임워크**: Next.js 16 (App Router)
+- **인증 / DB**: Supabase
+- **스타일링**: Tailwind CSS v4
+- **AI**: Anthropic Claude API
+- **언어**: TypeScript
+
+## 로컬 실행 가이드
+
+### 1. 저장소 클론 & 패키지 설치
+
+```bash
+git clone <repository-url>
+cd jobtrack
+npm install
+```
+
+### 2. 환경 변수 설정
+
+```bash
+cp .env.local.example .env.local
+```
+
+`.env.local`을 열고 값을 채워넣으세요:
+
+| 변수 | 설명 | 발급처 |
+|------|------|--------|
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase 프로젝트 URL | Supabase 대시보드 → Settings → API |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon key | Supabase 대시보드 → Settings → API |
+| `ANTHROPIC_API_KEY` | Claude API 키 | [console.anthropic.com](https://console.anthropic.com/settings/keys) |
+
+### 3. Supabase 프로젝트 설정
+
+1. [supabase.com](https://supabase.com)에서 새 프로젝트 생성
+2. **Authentication → Providers**에서 Email 로그인 활성화
+3. **SQL Editor**에서 `db/schema.sql` 전체 내용을 실행
+
+### 4. 개발 서버 실행
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+브라우저에서 [http://localhost:3000](http://localhost:3000) 열기.
+처음 접속하면 로그인 페이지로 이동합니다.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 프로젝트 구조
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+app/
+  layout.tsx              # 루트 레이아웃 (사이드바 포함)
+  page.tsx                # 대시보드 (/)
+  login/page.tsx          # 로그인 (/login)
+  calendar/page.tsx       # 캘린더 (/calendar)
+  applications/page.tsx   # 지원현황 (/applications)
+  documents/page.tsx      # 문서함 (/documents)
+  ai/page.tsx             # AI 피드백 (/ai)
+  admin/
+    layout.tsx            # 관리자 전용 레이아웃 (사이드바 없음)
+    page.tsx              # 관리자 패널 (/admin)
+  actions/auth.ts         # 로그인/로그아웃 Server Actions
 
-## Learn More
+components/
+  layout-wrapper.tsx      # 경로별 사이드바 조건 렌더링
+  sidebar.tsx             # 사이드바 네비게이션
 
-To learn more about Next.js, take a look at the following resources:
+lib/
+  supabase.ts             # 브라우저 Supabase 클라이언트
+  supabase-server.ts      # 서버 Supabase 클라이언트
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+types/
+  database.ts             # Supabase DB 타입 정의
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+db/
+  schema.sql              # 데이터베이스 스키마
 
-## Deploy on Vercel
+middleware.ts             # 인증 미들웨어 (비로그인 시 /login 리다이렉트)
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 주요 기능
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **대시보드**: 지원 현황 요약 (총 지원 / 서류 통과 / 면접 / 합격)
+- **캘린더**: 면접 일정·마감일 시각화
+- **지원현황**: 회사별 지원 상태 트래킹 (위시리스트 → 서류 → 면접 → 합격/불합격)
+- **문서함**: 이력서·자기소개서 저장 및 버전 관리
+- **AI 피드백**: Claude를 이용한 이력서·자소서 첨삭
+- **관리자 패널**: 사용자 및 시스템 관리
+
+## 스크립트
+
+```bash
+npm run dev    # 개발 서버 (http://localhost:3000)
+npm run build  # 프로덕션 빌드
+npm run start  # 프로덕션 서버
+npm run lint   # ESLint 검사
+```
