@@ -1,13 +1,16 @@
 import { requireAdmin } from "@/lib/admin";
+import { createAdminClient } from "@/lib/supabase-admin";
 import { logEvent } from "@/lib/logger";
 import { AdminDashboard } from "@/components/admin/admin-dashboard";
 
 const LOOKBACK_DAYS = 14;
 
 export default async function AdminPage() {
-  const { supabase, user } = await requireAdmin();
-
+  const { user } = await requireAdmin();
   await logEvent("admin_view", undefined, user.id);
+
+  // RLS 우회로 모든 유저 데이터 조회 (admin email 통과 후에만)
+  const admin = createAdminClient();
 
   const since = new Date();
   since.setDate(since.getDate() - LOOKBACK_DAYS);
@@ -22,21 +25,21 @@ export default async function AdminPage() {
     { data: recentProfiles },
     { count: onboardedCount },
   ] = await Promise.all([
-    supabase.from("profiles").select("*", { count: "exact", head: true }),
-    supabase.from("job_applications").select("*", { count: "exact", head: true }),
-    supabase.from("documents").select("*", { count: "exact", head: true }),
-    supabase.from("ai_feedback").select("*", { count: "exact", head: true }),
-    supabase
+    admin.from("profiles").select("*", { count: "exact", head: true }),
+    admin.from("job_applications").select("*", { count: "exact", head: true }),
+    admin.from("documents").select("*", { count: "exact", head: true }),
+    admin.from("ai_feedback").select("*", { count: "exact", head: true }),
+    admin
       .from("usage_logs")
       .select("event, user_id, created_at")
       .gte("created_at", sinceIso)
       .order("created_at", { ascending: false }),
-    supabase
+    admin
       .from("profiles")
       .select("user_id, onboarded_at, created_at")
       .order("created_at", { ascending: false })
       .limit(10),
-    supabase
+    admin
       .from("profiles")
       .select("*", { count: "exact", head: true })
       .not("onboarded_at", "is", null),

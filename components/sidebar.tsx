@@ -17,12 +17,17 @@ import {
 import { logout } from "@/app/actions/auth";
 
 const NAV_ITEMS = [
-  { href: "/", label: "대시보드", icon: LayoutDashboard },
-  { href: "/calendar", label: "캘린더", icon: Calendar },
-  { href: "/applications", label: "지원현황", icon: Briefcase },
-  { href: "/documents", label: "문서함", icon: FileText },
-  { href: "/ai", label: "AI 피드백", icon: Sparkles },
-];
+  { href: "/", label: "대시보드", icon: LayoutDashboard, badge: null },
+  { href: "/calendar", label: "캘린더", icon: Calendar, badge: null },
+  { href: "/applications", label: "지원현황", icon: Briefcase, badge: null },
+  { href: "/documents", label: "문서함", icon: FileText, badge: null },
+  {
+    href: "/ai",
+    label: "AI 피드백",
+    icon: Sparkles,
+    badge: "출시 예정",
+  },
+] as const;
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -72,7 +77,7 @@ export function Sidebar() {
         </div>
 
         <nav className="flex-1 overflow-y-auto px-2 py-3 space-y-0.5">
-          {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
+          {NAV_ITEMS.map(({ href, label, icon: Icon, badge }) => {
             const isActive =
               href === "/" ? pathname === "/" : pathname?.startsWith(href);
             return (
@@ -86,7 +91,12 @@ export function Sidebar() {
                 }`}
               >
                 <Icon size={16} strokeWidth={1.75} />
-                {label}
+                <span className="flex-1">{label}</span>
+                {badge && (
+                  <span className="rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300 text-[9px] font-bold px-1.5 py-0.5">
+                    {badge}
+                  </span>
+                )}
               </Link>
             );
           })}
