@@ -13,6 +13,7 @@ import {
   LogOut,
   Menu,
   X,
+  Settings,
 } from "lucide-react";
 import { logout } from "@/app/actions/auth";
 

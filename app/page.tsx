@@ -9,11 +9,14 @@ import {
 } from "lucide-react";
 import { createClient } from "@/lib/supabase-server";
 import { DDayBadge } from "@/components/ui/dday-badge";
+import { DashboardCharts } from "@/components/dashboard/dashboard-charts";
 import {
   APPLICATION_STATUS_LABELS,
   APPLICATION_STATUS_COLORS,
 } from "@/types/application";
 import type { ApplicationStatus } from "@/types/database";
+
+export const dynamic = "force-dynamic";
 
 const IN_PROGRESS_STATUSES: ApplicationStatus[] = [
   "wishlist",
@@ -53,6 +56,8 @@ export default async function DashboardPage() {
   const thirtyDaysAgo = new Date(now);
   thirtyDaysAgo.setDate(now.getDate() - 30);
 
+  const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1);
+
   const [
     { count: totalCount },
     { count: inProgressCount },
@@ -61,6 +66,8 @@ export default async function DashboardPage() {
     { count: thisMonthCount },
     { data: recentApps },
     { data: upcoming },
+    { data: allStatuses },
+    { data: monthlyApps },
   ] = await Promise.all([
     supabase.from("job_applications").select("*", { count: "exact", head: true }).eq("user_id", user.id),
     supabase.from("job_applications").select("*", { count: "exact", head: true }).eq("user_id", user.id).in("status", IN_PROGRESS_STATUSES),
@@ -81,7 +88,39 @@ export default async function DashboardPage() {
       .lte("starts_at", sevenDaysLater.toISOString())
       .order("starts_at", { ascending: true })
       .limit(5),
+    supabase
+      .from("job_applications")
+      .select("status")
+      .eq("user_id", user.id),
+    supabase
+      .from("job_applications")
+      .select("created_at")
+      .eq("user_id", user.id)
+      .gte("created_at", sixMonthsAgo.toISOString()),
   ]);
+
+  // 상태별 분포 집계
+  const statusBreakdown: { status: ApplicationStatus; count: number }[] = (
+    [
+      "wishlist",
+      "applied",
+      "screening",
+      "interview",
+      "offer",
+      "rejected",
+      "withdrawn",
+    ] as ApplicationStatus[]
+  ).map((s) => ({
+    status: s,
+    count:
+      (allStatuses ?? []).filter(
+        (a) => (a as { status: ApplicationStatus }).status === s
+      ).length,
+  }));
+
+  const monthlySource = (monthlyApps ?? []).map((m) => ({
+    date: (m as { created_at: string }).created_at,
+  }));
 
   const total = totalCount ?? 0;
   const isEmpty = total === 0;
@@ -127,6 +166,15 @@ export default async function DashboardPage() {
           sub="최근 30일"
         />
       </div>
+
+      {!isEmpty && (
+        <div className="mt-6">
+          <DashboardCharts
+            statusBreakdown={statusBreakdown}
+            monthlySource={monthlySource}
+          />
+        </div>
+      )}
 
       {isEmpty ? (
         <div className="mt-6 rounded-2xl border border-dashed border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 p-10 text-center">
