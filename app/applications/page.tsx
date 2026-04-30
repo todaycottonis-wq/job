@@ -3,6 +3,9 @@
 import { useEffect, useState, useCallback } from "react";
 import { Trash2 } from "lucide-react";
 import { ApplicationForm } from "@/components/applications/application-form";
+import { Skeleton } from "@/components/ui/skeleton";
+import { DDayBadge } from "@/components/ui/dday-badge";
+import { useToast } from "@/components/ui/toast";
 import type { ApplicationRow, ApplicationFilter } from "@/types/application";
 import {
   APPLICATION_STATUS_LABELS,
@@ -21,6 +24,7 @@ const FILTER_TABS: { label: string; value: ApplicationFilter["status"] }[] = [
 ];
 
 export default function ApplicationsPage() {
+  const toast = useToast();
   const [applications, setApplications] = useState<ApplicationRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<ApplicationFilter["status"]>("all");
@@ -70,12 +74,38 @@ export default function ApplicationsPage() {
     });
   }
 
-  async function handleDelete(id: string) {
-    if (!confirm("이 지원을 삭제할까요?")) return;
-    setDeletingId(id);
+  async function handleDelete(app: ApplicationRow) {
+    setDeletingId(app.id);
     try {
-      await fetch(`/api/applications/${id}`, { method: "DELETE" });
-      setApplications((prev) => prev.filter((a) => a.id !== id));
+      await fetch(`/api/applications/${app.id}`, { method: "DELETE" });
+      setApplications((prev) => prev.filter((a) => a.id !== app.id));
+      toast.show(`'${app.company_name}' 지원을 삭제했어요`, {
+        variant: "success",
+        undoLabel: "되돌리기",
+        onUndo: async () => {
+          // 같은 데이터로 새로 생성 (id는 새로 발급됨)
+          const res = await fetch("/api/applications", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              company_name: app.company_name,
+              position: app.position,
+              status: app.status,
+              job_url: app.job_url,
+              salary_range: app.salary_range,
+              location: app.location,
+              applied_at: app.applied_at,
+              deadline: app.deadline,
+              notes: app.notes,
+            }),
+          });
+          if (res.ok) {
+            const json = await res.json();
+            setApplications((prev) => [json.data as ApplicationRow, ...prev]);
+            toast.show("복구했어요", { variant: "success", duration: 2500 });
+          }
+        },
+      });
     } finally {
       setDeletingId(null);
     }
@@ -130,9 +160,24 @@ export default function ApplicationsPage() {
         </div>
 
         {loading ? (
-          <div className="px-4 py-8 text-center text-sm text-zinc-400">
-            불러오는 중...
-          </div>
+          <ul>
+            {Array.from({ length: 4 }).map((_, i) => (
+              <li
+                key={i}
+                className="px-4 py-3 border-b border-zinc-50 dark:border-zinc-800/60 last:border-0"
+              >
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-4 w-32" />
+                    <Skeleton className="h-3 w-48" />
+                  </div>
+                  <Skeleton className="h-5 w-14 rounded-full" />
+                  <Skeleton className="h-3 w-20 hidden md:block" />
+                  <Skeleton className="h-3 w-20 hidden md:block" />
+                </div>
+              </li>
+            ))}
+          </ul>
         ) : visible.length === 0 ? (
           <div className="px-4 py-10 text-center">
             <p className="text-sm text-zinc-400">
@@ -177,7 +222,7 @@ export default function ApplicationsPage() {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleDelete(app.id);
+                        handleDelete(app);
                       }}
                       disabled={deletingId === app.id}
                       className="rounded p-1 text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all disabled:opacity-50"
@@ -197,16 +242,18 @@ export default function ApplicationsPage() {
                 </div>
 
                 {/* 날짜 (모바일은 한 줄로 / 데스크탑은 각 컬럼) */}
-                <div className="flex md:hidden items-center gap-3 mt-2 text-[11px] text-zinc-500 dark:text-zinc-400">
+                <div className="flex md:hidden items-center gap-2 mt-2 text-[11px] text-zinc-500 dark:text-zinc-400">
                   <span>지원 {app.applied_at ?? "—"}</span>
                   <span className="text-zinc-300">·</span>
                   <span>마감 {app.deadline ?? "—"}</span>
+                  {app.deadline && <DDayBadge date={app.deadline} prefix="D" />}
                 </div>
                 <div className="hidden md:flex items-center text-xs text-zinc-500 dark:text-zinc-400">
                   {app.applied_at ?? "—"}
                 </div>
-                <div className="hidden md:flex items-center text-xs text-zinc-500 dark:text-zinc-400">
-                  {app.deadline ?? "—"}
+                <div className="hidden md:flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-400">
+                  <span>{app.deadline ?? "—"}</span>
+                  {app.deadline && <DDayBadge date={app.deadline} prefix="D" />}
                 </div>
 
                 {/* 데스크탑 삭제 버튼 */}
@@ -214,7 +261,7 @@ export default function ApplicationsPage() {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleDelete(app.id);
+                      handleDelete(app);
                     }}
                     disabled={deletingId === app.id}
                     className="opacity-0 group-hover:opacity-100 rounded p-1 text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all disabled:opacity-50"

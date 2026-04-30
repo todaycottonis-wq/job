@@ -12,6 +12,8 @@ import {
 import type { Document, Folder, DocumentType } from "@/types/database";
 import { UploadModal } from "./upload-modal";
 import { FolderModal } from "./folder-modal";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useToast } from "@/components/ui/toast";
 
 const TYPE_LABEL: Record<DocumentType, string> = {
   resume: "이력서",
@@ -21,6 +23,7 @@ const TYPE_LABEL: Record<DocumentType, string> = {
 };
 
 export function DocumentsView() {
+  const toast = useToast();
   const [folders, setFolders] = useState<Folder[]>([]);
   const [docs, setDocs] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
@@ -60,13 +63,14 @@ export function DocumentsView() {
     )
       return;
     await fetch(`/api/folders/${folder.id}`, { method: "DELETE" });
+    toast.show(`'${folder.name}' 폴더를 삭제했어요`, { variant: "success" });
     void fetchAll();
   }
 
   async function deleteDoc(doc: Document) {
-    if (!confirm(`'${doc.title}' 문서를 삭제할까요?`)) return;
     await fetch(`/api/documents/${doc.id}`, { method: "DELETE" });
-    void fetchAll();
+    setDocs((prev) => prev.filter((d) => d.id !== doc.id));
+    toast.show(`'${doc.title}' 문서를 삭제했어요`, { variant: "success" });
   }
 
   return (
@@ -116,8 +120,21 @@ export function DocumentsView() {
       </div>
 
       {loading ? (
-        <div className="rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 p-8 text-center text-sm text-zinc-400">
-          불러오는 중...
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div
+              key={i}
+              className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4"
+            >
+              <div className="flex items-start gap-2.5">
+                <Skeleton className="w-9 h-9 rounded-lg" />
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-3 w-24" />
+                  <Skeleton className="h-2 w-12" />
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       ) : (
         <>

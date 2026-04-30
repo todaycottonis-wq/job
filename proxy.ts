@@ -47,6 +47,8 @@ export async function proxy(request: NextRequest) {
   if (!user) {
     if (isApi) return supabaseResponse;
     if (isPublic) return supabaseResponse;
+    // 랜딩 페이지(/)는 비로그인 허용
+    if (pathname === "/") return supabaseResponse;
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     const res = NextResponse.redirect(url);
