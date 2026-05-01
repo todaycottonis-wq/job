@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Check, Loader2, Save, Settings as SettingsIcon, Trash2 } from "lucide-react";
+import { ArrowLeft, Check, Loader2, Save, Trash2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
 import { useDebounce } from "@/lib/use-debounce";
@@ -52,7 +52,6 @@ export function QuestionEditor({
   const [answer, setAnswer] = useState("");
 
   const [saveState, setSaveState] = useState<SaveState>("idle");
-  const [showSettings, setShowSettings] = useState(false);
   const initialLoadRef = useRef(true);
 
   // 자동 저장 — 1.5초 debounce
@@ -241,9 +240,9 @@ export function QuestionEditor({
       />
 
       {/* 카운터 + 설정 (인라인, 답변 textarea 바로 아래) */}
-      <div className="border-t border-zinc-200 dark:border-zinc-800 pt-3 mt-2">
+      <div className="border-t border-zinc-200 dark:border-zinc-800 pt-3 mt-2 space-y-3">
         <div className="flex items-center justify-between gap-3 flex-wrap">
-          <div className="flex items-baseline gap-1.5 min-w-0">
+          <div className="flex items-baseline gap-1.5">
             <span className={`text-2xl font-bold font-mono tracking-tight ${counterColor}`}>
               {len.toLocaleString()}
             </span>
@@ -251,17 +250,8 @@ export function QuestionEditor({
               / {charLimit.toLocaleString()}
             </span>
             <span className="text-xs text-zinc-400 ml-2 hidden sm:inline">
-              ( 글자 수, {modeLabel(countMode)}
+              ( 글자 수, {modeLabel(countMode)} )
             </span>
-            <button
-              type="button"
-              onClick={() => setShowSettings((s) => !s)}
-              className="inline-flex items-center gap-0.5 rounded-md border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800 px-1.5 py-0.5 text-[10px] text-zinc-500 ml-1.5"
-            >
-              <SettingsIcon size={9} />
-              설정
-            </button>
-            <span className="text-xs text-zinc-400 hidden sm:inline">)</span>
           </div>
 
           {/* 진행률 바 */}
@@ -281,41 +271,39 @@ export function QuestionEditor({
           </div>
         </div>
 
-        {/* 설정 패널 (토글) */}
-        {showSettings && (
-          <div className="mt-3 rounded-lg bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800 p-3 flex items-center gap-3 flex-wrap">
-            <label className="flex items-center gap-1.5">
-              <span className="text-xs text-zinc-500 dark:text-zinc-400">글자수 제한</span>
-              <input
-                type="number"
-                value={charLimit}
-                onChange={(e) =>
-                  setCharLimit(Math.max(0, parseInt(e.target.value || "0", 10)))
-                }
-                min={0}
-                className="w-20 rounded border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-2 py-1 text-xs"
-              />
-              <span className="text-xs text-zinc-500">자</span>
-            </label>
+        {/* 설정 (항상 표시) */}
+        <div className="flex items-center gap-3 flex-wrap">
+          <label className="flex items-center gap-1.5">
+            <span className="text-xs text-zinc-500 dark:text-zinc-400">글자수 제한</span>
+            <input
+              type="number"
+              value={charLimit}
+              onChange={(e) =>
+                setCharLimit(Math.max(0, parseInt(e.target.value || "0", 10)))
+              }
+              min={0}
+              className="w-20 rounded border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-2 py-1 text-xs"
+            />
+            <span className="text-xs text-zinc-500">자</span>
+          </label>
 
-            <div className="rounded-lg bg-zinc-100 dark:bg-zinc-700 p-0.5 flex">
-              {(["with_spaces", "without_spaces"] as CountMode[]).map((m) => (
-                <button
-                  key={m}
-                  type="button"
-                  onClick={() => setCountMode(m)}
-                  className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
-                    countMode === m
-                      ? "bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 shadow-sm"
-                      : "text-zinc-500"
-                  }`}
-                >
-                  {modeLabel(m)}
-                </button>
-              ))}
-            </div>
+          <div className="rounded-lg bg-zinc-100 dark:bg-zinc-800 p-0.5 flex">
+            {(["with_spaces", "without_spaces"] as CountMode[]).map((m) => (
+              <button
+                key={m}
+                type="button"
+                onClick={() => setCountMode(m)}
+                className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
+                  countMode === m
+                    ? "bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 shadow-sm"
+                    : "text-zinc-500"
+                }`}
+              >
+                {modeLabel(m)}
+              </button>
+            ))}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
