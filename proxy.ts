@@ -1,7 +1,13 @@
 import { createServerClient } from "@supabase/auth-helpers-nextjs";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PUBLIC_PREFIXES = ["/login", "/forgot-password", "/reset-password"];
+const PUBLIC_PREFIXES = [
+  "/login",
+  "/forgot-password",
+  "/reset-password",
+  "/terms",
+  "/privacy",
+];
 const ONBOARDING_PATH = "/onboarding";
 const ONB_COOKIE = "jt_onb"; // value = user_id of last onboarded user
 

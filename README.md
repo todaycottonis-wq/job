@@ -1,6 +1,10 @@
-# JobTrack
+# 커리업 (Career up)
 
-취업 지원 현황을 한눈에 관리하는 앱. 지원 추적, 일정 관리, AI 피드백 기능을 제공합니다.
+> 취업 지원 현황을 한눈에 관리하는 취준생 대시보드. 지원 추적, 일정 관리, 문서함, AI 피드백 기능을 제공합니다.
+
+- 🌐 랜딩: https://jobtrack-landing.vercel.app
+- 🚀 앱: https://job-kappa-coral.vercel.app
+- 📜 [이용약관](https://job-kappa-coral.vercel.app/terms) · [개인정보 처리방침](https://job-kappa-coral.vercel.app/privacy)
 
 ## 기술 스택
 
@@ -99,3 +103,16 @@ npm run build  # 프로덕션 빌드
 npm run start  # 프로덕션 서버
 npm run lint   # ESLint 검사
 ```
+
+## 라이선스
+
+Copyright © 2026 Career up (커리업) — All rights reserved.
+
+이 저장소의 소스코드와 모든 콘텐츠는 저작권자(커리업 운영자)의 사전 서면 동의 없이 복제·수정·배포·재라이선스·공개 전시·이용할 수 없습니다. 자세한 내용은 [LICENSE](./LICENSE) 파일을 참고하세요.
+
+본 프로젝트는 다음 오픈소스 라이브러리를 사용합니다 (각 라이선스는 해당 패키지의 라이선스를 따릅니다):
+
+- Next.js (MIT) · React (MIT) · Tailwind CSS (MIT)
+- lucide-react (ISC) · recharts (MIT)
+- @supabase/supabase-js (MIT) · @anthropic-ai/sdk (MIT)
+- Pretendard 폰트 (OFL-1.1) · Geist 폰트 (MIT)

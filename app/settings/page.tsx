@@ -136,17 +136,23 @@ export default async function SettingsPage() {
         <Row
           label="이용약관"
           value={
-            <span className="text-xs text-zinc-400">
-              베타 기간 — 추후 공개
-            </span>
+            <a
+              href="/terms"
+              className="text-xs text-[#3182F6] hover:underline"
+            >
+              보기 →
+            </a>
           }
         />
         <Row
           label="개인정보 처리방침"
           value={
-            <span className="text-xs text-zinc-400">
-              베타 기간 — 추후 공개
-            </span>
+            <a
+              href="/privacy"
+              className="text-xs text-[#3182F6] hover:underline"
+            >
+              보기 →
+            </a>
           }
         />
       </Section>

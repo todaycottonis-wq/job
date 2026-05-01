@@ -3,7 +3,15 @@
 import { usePathname } from "next/navigation";
 import { Sidebar } from "./sidebar";
 
-const SIDEBAR_EXCLUDED = ["/login", "/admin", "/onboarding"];
+const SIDEBAR_EXCLUDED = [
+  "/login",
+  "/admin",
+  "/onboarding",
+  "/forgot-password",
+  "/reset-password",
+  "/terms",
+  "/privacy",
+];
 
 export function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();

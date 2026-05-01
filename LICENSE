@@ -1,0 +1,31 @@
+Copyright (c) 2026 Career up (커리업)
+
+All rights reserved.
+
+This source code and its contents (the "Software") are proprietary and
+confidential. Unauthorized copying, modification, distribution, sublicensing,
+public display, or use of any part of the Software, via any medium, is
+strictly prohibited without the express prior written permission of the
+copyright holder.
+
+The Software is provided "AS IS", without warranty of any kind, express or
+implied, including but not limited to the warranties of merchantability,
+fitness for a particular purpose, and non-infringement.
+
+──────────────────────────────────────────────────────────────────────────────
+
+This project depends on the following open source software, each governed by
+its own license. The respective licenses apply to those components only.
+
+  - Next.js                MIT       https://github.com/vercel/next.js
+  - React                  MIT       https://github.com/facebook/react
+  - Tailwind CSS           MIT       https://github.com/tailwindlabs/tailwindcss
+  - lucide-react           ISC       https://github.com/lucide-icons/lucide
+  - recharts               MIT       https://github.com/recharts/recharts
+  - @supabase/supabase-js  MIT       https://github.com/supabase/supabase-js
+  - @anthropic-ai/sdk      MIT       https://github.com/anthropics/anthropic-sdk-typescript
+  - Pretendard font        OFL-1.1   https://github.com/orioncactus/pretendard
+  - Geist font             MIT       https://github.com/vercel/geist-font
+
+Use of those packages does not relieve any party from compliance with this
+LICENSE in respect of the proprietary parts of the Software.
