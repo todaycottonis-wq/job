@@ -66,9 +66,19 @@ export function Sidebar() {
         }`}
       >
         <div className="flex h-14 items-center justify-between px-4 border-b border-zinc-200 dark:border-zinc-800">
-          <span className="text-base font-semibold tracking-tight">
-            Career up
-          </span>
+          <Link href="/" className="flex items-center gap-1.5">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/icon-64.png"
+              alt="커리업"
+              width={26}
+              height={26}
+              className="rounded-md"
+            />
+            <span className="text-base font-semibold tracking-tight">
+              Career up
+            </span>
+          </Link>
           <button
             type="button"
             onClick={() => setOpen(false)}
