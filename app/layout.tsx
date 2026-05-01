@@ -63,7 +63,7 @@ export const metadata: Metadata = {
   },
   // 검색엔진 사이트 소유 확인
   verification: {
-    // google: "여기에-구글-서치콘솔-코드",
+    google: "m67GJALpkSVJV4CMUfMcOuPEy7jeVhNE_CxOipXNwTg",
     other: {
       "naver-site-verification": "bac29fc8606d73fa9232b12720620620e05b140e",
     },
