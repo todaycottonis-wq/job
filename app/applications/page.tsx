@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { Trash2 } from "lucide-react";
+import { Trash2, FileText, NotebookText } from "lucide-react";
 import { ApplicationForm } from "@/components/applications/application-form";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DDayBadge } from "@/components/ui/dday-badge";
@@ -24,9 +24,17 @@ const FILTER_TABS: { label: string; value: ApplicationFilter["status"] }[] = [
   { label: "불합격", value: "rejected" },
 ];
 
+interface AppDoc {
+  id: string;
+  title: string;
+  type: string;
+  is_link: boolean;
+}
+
 export default function ApplicationsPage() {
   const toast = useToast();
   const [applications, setApplications] = useState<ApplicationRow[]>([]);
+  const [appDocsMap, setAppDocsMap] = useState<Record<string, AppDoc[]>>({});
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<ApplicationFilter["status"]>("all");
   const [showForm, setShowForm] = useState(false);
@@ -40,9 +48,14 @@ export default function ApplicationsPage() {
         filter === "all"
           ? "/api/applications"
           : `/api/applications?status=${filter}`;
-      const res = await fetch(url);
-      const json = await res.json();
-      setApplications(json.data ?? []);
+      const [appsRes, docsRes] = await Promise.all([
+        fetch(url),
+        fetch("/api/application-documents"),
+      ]);
+      const appsJson = await appsRes.json();
+      const docsJson = await docsRes.json();
+      setApplications(appsJson.data ?? []);
+      setAppDocsMap((docsJson.data ?? {}) as Record<string, AppDoc[]>);
     } finally {
       setLoading(false);
     }
@@ -212,6 +225,30 @@ export default function ApplicationsPage() {
                     <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 truncate">
                       {app.position}
                     </p>
+                    {/* 연결된 문서 알약 */}
+                    {(appDocsMap[app.id]?.length ?? 0) > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-1.5">
+                        {appDocsMap[app.id]!.slice(0, 3).map((d) => (
+                          <span
+                            key={d.id}
+                            className="inline-flex items-center gap-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 text-[10px] px-1.5 py-0.5 max-w-[140px]"
+                            title={d.title}
+                          >
+                            {d.is_link ? (
+                              <NotebookText size={9} className="flex-shrink-0" />
+                            ) : (
+                              <FileText size={9} className="flex-shrink-0" />
+                            )}
+                            <span className="truncate">{d.title}</span>
+                          </span>
+                        ))}
+                        {appDocsMap[app.id]!.length > 3 && (
+                          <span className="text-[10px] text-zinc-400">
+                            +{appDocsMap[app.id]!.length - 3}
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </div>
                   {/* 모바일에서만 status + delete 같은 줄에 */}
                   <div className="md:hidden flex items-center gap-2 ml-3 flex-shrink-0">

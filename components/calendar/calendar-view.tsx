@@ -2,8 +2,13 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
-import type { CalendarEvent, CalendarEventType } from "@/types/database";
+import type {
+  CalendarEvent,
+  CalendarEventType,
+  UserEventType,
+} from "@/types/database";
 import { getHolidayForDate } from "@/lib/holidays";
+import { getEventColor } from "@/lib/event-colors";
 import { EventForm } from "./event-form";
 
 const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
@@ -35,10 +40,34 @@ function sameDay(a: Date, b: Date) {
 export function CalendarView() {
   const [cursor, setCursor] = useState(() => startOfMonth(new Date()));
   const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [userTypes, setUserTypes] = useState<UserEventType[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editTarget, setEditTarget] = useState<CalendarEvent | undefined>();
   const [presetDate, setPresetDate] = useState<string | undefined>();
+
+  useEffect(() => {
+    void (async () => {
+      const res = await fetch("/api/event-types");
+      const json = await res.json();
+      setUserTypes(json.data ?? []);
+    })();
+  }, []);
+
+  const userTypeMap = useMemo(
+    () => new Map(userTypes.map((t) => [t.id, t])),
+    [userTypes]
+  );
+
+  function getDotClass(ev: CalendarEvent): string {
+    const userTypeId = (ev as unknown as { user_event_type_id?: string | null })
+      .user_event_type_id;
+    if (userTypeId) {
+      const t = userTypeMap.get(userTypeId);
+      if (t) return getEventColor(t.color).bg;
+    }
+    return TYPE_COLORS[ev.event_type];
+  }
 
   // 그리드 시작/끝 (이전/다음 달의 빈칸 채움)
   const gridDays = useMemo(() => {
@@ -216,9 +245,7 @@ export function CalendarView() {
                     className="flex items-center gap-1 rounded px-1 py-0.5 text-[10px] text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 truncate"
                   >
                     <span
-                      className={`flex-shrink-0 w-1.5 h-1.5 rounded-full ${
-                        TYPE_COLORS[ev.event_type]
-                      }`}
+                      className={`flex-shrink-0 w-1.5 h-1.5 rounded-full ${getDotClass(ev)}`}
                     />
                     <span className="truncate">{ev.title}</span>
                   </div>
