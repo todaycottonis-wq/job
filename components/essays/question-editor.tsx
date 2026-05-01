@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Check, Loader2, Trash2 } from "lucide-react";
+import { ArrowLeft, Check, Loader2, Save, Settings as SettingsIcon, Trash2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
 import { useDebounce } from "@/lib/use-debounce";
@@ -52,6 +52,7 @@ export function QuestionEditor({
   const [answer, setAnswer] = useState("");
 
   const [saveState, setSaveState] = useState<SaveState>("idle");
+  const [showSettings, setShowSettings] = useState(false);
   const initialLoadRef = useRef(true);
 
   // 자동 저장 — 1.5초 debounce
@@ -163,6 +164,11 @@ export function QuestionEditor({
     router.push(`/essays/${essayId}`);
   }
 
+  async function handleManualSave() {
+    await save({ content, char_limit: charLimit, count_mode: countMode, answer });
+    toast.show("저장했어요", { variant: "success", duration: 1500 });
+  }
+
   if (loading || !essay || !question) {
     return (
       <div className="space-y-3">
@@ -196,8 +202,16 @@ export function QuestionEditor({
           <span>문항 {questionIndex + 1}</span>
         </Link>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <SaveIndicator state={saveState} />
+          <button
+            onClick={handleManualSave}
+            disabled={saveState === "saving"}
+            className="inline-flex items-center gap-1 rounded-lg bg-[#3182F6] hover:bg-[#1a6fe8] disabled:opacity-50 px-3 py-1.5 text-xs font-semibold text-white transition-colors"
+          >
+            <Save size={12} />
+            저장
+          </button>
           <button
             onClick={handleDelete}
             className="rounded-lg p-1.5 text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
@@ -214,60 +228,94 @@ export function QuestionEditor({
         onChange={(e) => setContent(e.target.value)}
         placeholder="질문 내용을 입력하세요. 예) 본인의 지원 동기에 대해 작성해주세요."
         rows={3}
-        className="w-full text-lg font-bold tracking-tight bg-transparent border-0 focus:outline-none resize-none placeholder:text-zinc-300 dark:placeholder:text-zinc-700 mb-4"
+        className="w-full text-lg font-bold tracking-tight bg-transparent border-0 focus:outline-none resize-none placeholder:text-zinc-300 dark:placeholder:text-zinc-700 mb-4 pb-3 border-b border-zinc-100 dark:border-zinc-800"
       />
-
-      {/* 설정 바 */}
-      <div className="flex items-center gap-3 flex-wrap pb-4 border-b border-zinc-100 dark:border-zinc-800 mb-4 text-sm">
-        <label className="flex items-center gap-1.5">
-          <span className="text-xs text-zinc-500 dark:text-zinc-400">글자수 제한</span>
-          <input
-            type="number"
-            value={charLimit}
-            onChange={(e) =>
-              setCharLimit(Math.max(0, parseInt(e.target.value || "0", 10)))
-            }
-            min={0}
-            className="w-20 rounded border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-2 py-1 text-xs"
-          />
-          <span className="text-xs text-zinc-500">자</span>
-        </label>
-
-        <div className="rounded-lg bg-zinc-100 dark:bg-zinc-800 p-0.5 flex">
-          {(["with_spaces", "without_spaces"] as CountMode[]).map((m) => (
-            <button
-              key={m}
-              type="button"
-              onClick={() => setCountMode(m)}
-              className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
-                countMode === m
-                  ? "bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 shadow-sm"
-                  : "text-zinc-500"
-              }`}
-            >
-              {modeLabel(m)}
-            </button>
-          ))}
-        </div>
-      </div>
 
       {/* 답변 작성 */}
       <textarea
         value={answer}
         onChange={(e) => setAnswer(e.target.value)}
-        placeholder="여기에 답변을 작성하세요..."
+        placeholder="답변을 입력하세요"
         rows={20}
         className="w-full bg-transparent border-0 focus:outline-none resize-none text-[15px] leading-relaxed placeholder:text-zinc-300 dark:placeholder:text-zinc-700 min-h-[400px]"
       />
 
-      {/* 카운터 (우측 하단 고정) */}
-      <div className="fixed bottom-5 right-5 md:bottom-7 md:right-7 z-20 rounded-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 shadow-lg px-3.5 py-2">
-        <p className={`text-xs font-mono font-semibold ${counterColor}`}>
-          {len} / {charLimit}자
-          <span className="ml-1 font-normal text-zinc-400">
-            ({modeLabel(countMode)})
-          </span>
-        </p>
+      {/* 카운터 + 설정 (인라인, 답변 textarea 바로 아래) */}
+      <div className="border-t border-zinc-200 dark:border-zinc-800 pt-3 mt-2">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-baseline gap-1.5 min-w-0">
+            <span className={`text-2xl font-bold font-mono tracking-tight ${counterColor}`}>
+              {len.toLocaleString()}
+            </span>
+            <span className="text-sm text-zinc-400 font-medium">
+              / {charLimit.toLocaleString()}
+            </span>
+            <span className="text-xs text-zinc-400 ml-2 hidden sm:inline">
+              ( 글자 수, {modeLabel(countMode)}
+            </span>
+            <button
+              type="button"
+              onClick={() => setShowSettings((s) => !s)}
+              className="inline-flex items-center gap-0.5 rounded-md border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800 px-1.5 py-0.5 text-[10px] text-zinc-500 ml-1.5"
+            >
+              <SettingsIcon size={9} />
+              설정
+            </button>
+            <span className="text-xs text-zinc-400 hidden sm:inline">)</span>
+          </div>
+
+          {/* 진행률 바 */}
+          <div className="flex-1 min-w-[120px] max-w-[280px] hidden sm:block">
+            <div className="h-1.5 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all ${
+                  ratio >= 1
+                    ? "bg-red-500"
+                    : ratio >= 0.8
+                    ? "bg-amber-500"
+                    : "bg-[#3182F6]"
+                }`}
+                style={{ width: `${Math.min(ratio * 100, 100)}%` }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* 설정 패널 (토글) */}
+        {showSettings && (
+          <div className="mt-3 rounded-lg bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800 p-3 flex items-center gap-3 flex-wrap">
+            <label className="flex items-center gap-1.5">
+              <span className="text-xs text-zinc-500 dark:text-zinc-400">글자수 제한</span>
+              <input
+                type="number"
+                value={charLimit}
+                onChange={(e) =>
+                  setCharLimit(Math.max(0, parseInt(e.target.value || "0", 10)))
+                }
+                min={0}
+                className="w-20 rounded border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-2 py-1 text-xs"
+              />
+              <span className="text-xs text-zinc-500">자</span>
+            </label>
+
+            <div className="rounded-lg bg-zinc-100 dark:bg-zinc-700 p-0.5 flex">
+              {(["with_spaces", "without_spaces"] as CountMode[]).map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => setCountMode(m)}
+                  className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
+                    countMode === m
+                      ? "bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 shadow-sm"
+                      : "text-zinc-500"
+                  }`}
+                >
+                  {modeLabel(m)}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
