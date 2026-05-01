@@ -61,11 +61,11 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/",
   },
-  // 검색엔진 사이트 소유 확인 (값 받으면 실제 코드로 교체)
+  // 검색엔진 사이트 소유 확인
   verification: {
     // google: "여기에-구글-서치콘솔-코드",
     other: {
-      // "naver-site-verification": "여기에-네이버-서치어드바이저-코드",
+      "naver-site-verification": "bac29fc8606d73fa9232b12720620620e05b140e",
     },
   },
 };
