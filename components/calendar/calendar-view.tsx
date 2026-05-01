@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import type { CalendarEvent, CalendarEventType } from "@/types/database";
+import { getHolidayForDate } from "@/lib/holidays";
 import { EventForm } from "./event-form";
 
 const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
@@ -169,6 +170,8 @@ export function CalendarView() {
           const isToday = sameDay(d, today_);
           const dayEvents = byDay.get(ymd(d)) ?? [];
           const dayOfWeek = d.getDay();
+          const holiday = getHolidayForDate(d);
+          const isHolidayRed = !!holiday; // 공휴일은 일요일처럼 빨간색
           return (
             <button
               key={i}
@@ -179,21 +182,28 @@ export function CalendarView() {
                   : "bg-zinc-50/50 dark:bg-zinc-900/40 hover:bg-zinc-50 dark:hover:bg-zinc-800/40"
               }`}
             >
-              <span
-                className={`inline-flex items-center justify-center text-xs font-medium ${
-                  !inMonth
-                    ? "text-zinc-300 dark:text-zinc-700"
-                    : isToday
-                    ? "bg-[#3182F6] text-white rounded-full w-5 h-5"
-                    : dayOfWeek === 0
-                    ? "text-red-500"
-                    : dayOfWeek === 6
-                    ? "text-blue-500"
-                    : "text-zinc-700 dark:text-zinc-300"
-                }`}
-              >
-                {d.getDate()}
-              </span>
+              <div className="flex items-center justify-between gap-1">
+                <span
+                  className={`inline-flex items-center justify-center text-xs font-medium ${
+                    !inMonth
+                      ? "text-zinc-300 dark:text-zinc-700"
+                      : isToday
+                      ? "bg-[#3182F6] text-white rounded-full w-5 h-5"
+                      : isHolidayRed || dayOfWeek === 0
+                      ? "text-red-500"
+                      : dayOfWeek === 6
+                      ? "text-blue-500"
+                      : "text-zinc-700 dark:text-zinc-300"
+                  }`}
+                >
+                  {d.getDate()}
+                </span>
+                {holiday && inMonth && (
+                  <span className="text-[9px] font-semibold text-red-500 truncate max-w-[60px]" title={holiday.name}>
+                    {holiday.name}
+                  </span>
+                )}
+              </div>
 
               <div className="mt-1 space-y-0.5">
                 {dayEvents.slice(0, 3).map((ev) => (

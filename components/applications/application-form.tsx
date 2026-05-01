@@ -32,7 +32,6 @@ const EMPTY_FORM: ApplicationFormData = {
   position: "",
   status: "wishlist",
   job_url: "",
-  location: "",
   applied_at: "",
   deadline: "",
   notes: "",
@@ -51,7 +50,6 @@ export function ApplicationForm({
           position: initial.position,
           status: initial.status,
           job_url: initial.job_url ?? "",
-          location: initial.location ?? "",
           applied_at: initial.applied_at ?? "",
           deadline: initial.deadline ?? "",
           notes: initial.notes ?? "",
@@ -89,7 +87,6 @@ export function ApplicationForm({
           position: form.position.trim(),
           status: form.status,
           job_url: form.job_url || null,
-          location: form.location || null,
           applied_at: form.applied_at || null,
           deadline: form.deadline || null,
           notes: form.notes || null,
@@ -147,29 +144,19 @@ export function ApplicationForm({
             </Field>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="진행 상태">
-              <select
-                value={form.status}
-                onChange={(e) => set("status", e.target.value)}
-                className={inputCls}
-              >
-                {STATUS_OPTIONS.map((s) => (
-                  <option key={s} value={s}>
-                    {APPLICATION_STATUS_LABELS[s]}
-                  </option>
-                ))}
-              </select>
-            </Field>
-            <Field label="근무지">
-              <input
-                value={form.location}
-                onChange={(e) => set("location", e.target.value)}
-                placeholder="예) 서울 강남구"
-                className={inputCls}
-              />
-            </Field>
-          </div>
+          <Field label="진행 상태">
+            <select
+              value={form.status}
+              onChange={(e) => set("status", e.target.value)}
+              className={inputCls}
+            >
+              {STATUS_OPTIONS.map((s) => (
+                <option key={s} value={s}>
+                  {APPLICATION_STATUS_LABELS[s]}
+                </option>
+              ))}
+            </select>
+          </Field>
 
           <div className="grid grid-cols-2 gap-3">
             <Field label="지원일">
