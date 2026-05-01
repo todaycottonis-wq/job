@@ -256,6 +256,78 @@ export interface Database {
         };
         Relationships: [];
       };
+      essays: {
+        Row: {
+          id: string;
+          user_id: string;
+          company_name: string;
+          job_title: string;
+          jd_url: string | null;
+          applied_date: string | null;
+          deadline: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          company_name: string;
+          job_title: string;
+          jd_url?: string | null;
+          applied_date?: string | null;
+          deadline?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          company_name?: string;
+          job_title?: string;
+          jd_url?: string | null;
+          applied_date?: string | null;
+          deadline?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      essay_questions: {
+        Row: {
+          id: string;
+          essay_id: string;
+          order: number;
+          content: string;
+          char_limit: number;
+          count_mode: "with_spaces" | "without_spaces";
+          answer: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          essay_id: string;
+          order?: number;
+          content?: string;
+          char_limit?: number;
+          count_mode?: "with_spaces" | "without_spaces";
+          answer?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          essay_id?: string;
+          order?: number;
+          content?: string;
+          char_limit?: number;
+          count_mode?: "with_spaces" | "without_spaces";
+          answer?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       ai_feedback: {
         Row: {
           id: string;
@@ -396,6 +468,8 @@ export type Document = Database["public"]["Tables"]["documents"]["Row"];
 export type Folder = Database["public"]["Tables"]["folders"]["Row"];
 export type UserEventType = Database["public"]["Tables"]["user_event_types"]["Row"];
 export type ApplicationDocument = Database["public"]["Tables"]["application_documents"]["Row"];
+export type Essay = Database["public"]["Tables"]["essays"]["Row"];
+export type EssayQuestion = Database["public"]["Tables"]["essay_questions"]["Row"];
 export type AiFeedback = Database["public"]["Tables"]["ai_feedback"]["Row"];
 export type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 export type UsageLog = Database["public"]["Tables"]["usage_logs"]["Row"];

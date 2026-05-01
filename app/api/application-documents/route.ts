@@ -15,6 +15,7 @@ export interface AppDocSummary {
   id: string;
   title: string;
   type: string;
+  file_url: string | null;
   is_link: boolean;
 }
 
@@ -53,6 +54,7 @@ export async function GET(): Promise<Response> {
       id: row.documents.id,
       title: row.documents.title,
       type: row.documents.type,
+      file_url: row.documents.file_url,
       is_link: !!(
         row.documents.file_url && /^https?:\/\//i.test(row.documents.file_url)
       ),

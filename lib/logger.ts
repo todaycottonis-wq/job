@@ -25,7 +25,14 @@ export type UsageEvent =
   | "data_reset"
   | "account_delete"
   | "data_export"
-  | "theme_change";
+  | "theme_change"
+  | "essay_create"
+  | "essay_update"
+  | "essay_delete"
+  | "essay_question_create"
+  | "essay_question_update"
+  | "essay_question_delete"
+  | "essay_question_reorder";
 
 export async function logEvent(
   event: UsageEvent,

@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { Trash2, FileText, NotebookText } from "lucide-react";
 import { ApplicationForm } from "@/components/applications/application-form";
+import { FilePreview } from "@/components/documents/file-preview";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DDayBadge } from "@/components/ui/dday-badge";
 import { useToast } from "@/components/ui/toast";
@@ -11,7 +12,7 @@ import {
   APPLICATION_STATUS_LABELS,
   APPLICATION_STATUS_COLORS,
 } from "@/types/application";
-import type { ApplicationStatus } from "@/types/database";
+import type { ApplicationStatus, Document, DocumentType } from "@/types/database";
 
 const FILTER_TABS: { label: string; value: ApplicationFilter["status"] }[] = [
   { label: "전체", value: "all" },
@@ -28,6 +29,7 @@ interface AppDoc {
   id: string;
   title: string;
   type: string;
+  file_url: string | null;
   is_link: boolean;
 }
 
@@ -40,6 +42,27 @@ export default function ApplicationsPage() {
   const [showForm, setShowForm] = useState(false);
   const [editTarget, setEditTarget] = useState<ApplicationRow | undefined>();
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [previewDoc, setPreviewDoc] = useState<Document | null>(null);
+
+  function openDocPreview(d: AppDoc) {
+    if (d.is_link && d.file_url) {
+      window.open(d.file_url, "_blank", "noopener,noreferrer");
+      return;
+    }
+    // FilePreview에 필요한 최소 Document shape
+    setPreviewDoc({
+      id: d.id,
+      user_id: "",
+      application_id: null,
+      folder_id: null,
+      type: d.type as DocumentType,
+      title: d.title,
+      content: null,
+      file_url: d.file_url,
+      created_at: "",
+      updated_at: "",
+    });
+  }
 
   const fetchApplications = useCallback(async () => {
     setLoading(true);
@@ -225,14 +248,19 @@ export default function ApplicationsPage() {
                     <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 truncate">
                       {app.position}
                     </p>
-                    {/* 연결된 문서 알약 */}
+                    {/* 연결된 문서 알약 — 클릭 시 미리보기 */}
                     {(appDocsMap[app.id]?.length ?? 0) > 0 && (
                       <div className="flex flex-wrap gap-1 mt-1.5">
                         {appDocsMap[app.id]!.slice(0, 3).map((d) => (
-                          <span
+                          <button
                             key={d.id}
-                            className="inline-flex items-center gap-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 text-[10px] px-1.5 py-0.5 max-w-[140px]"
-                            title={d.title}
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              openDocPreview(d);
+                            }}
+                            title={`${d.title} (클릭하면 미리보기)`}
+                            className="inline-flex items-center gap-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-[#3182F6]/10 hover:text-[#3182F6] dark:hover:bg-[#3182F6]/20 text-[10px] px-1.5 py-0.5 max-w-[140px] transition-colors cursor-pointer"
                           >
                             {d.is_link ? (
                               <NotebookText size={9} className="flex-shrink-0" />
@@ -240,7 +268,7 @@ export default function ApplicationsPage() {
                               <FileText size={9} className="flex-shrink-0" />
                             )}
                             <span className="truncate">{d.title}</span>
-                          </span>
+                          </button>
                         ))}
                         {appDocsMap[app.id]!.length > 3 && (
                           <span className="text-[10px] text-zinc-400">
@@ -320,6 +348,10 @@ export default function ApplicationsPage() {
           onSuccess={handleSuccess}
           onClose={() => setShowForm(false)}
         />
+      )}
+
+      {previewDoc && (
+        <FilePreview doc={previewDoc} onClose={() => setPreviewDoc(null)} />
       )}
     </div>
   );
