@@ -55,6 +55,19 @@ export const metadata: Metadata = {
   },
   robots: { index: true, follow: true },
   formatDetection: { telephone: false },
+  authors: [{ name: "Cotton" }],
+  creator: "Cotton",
+  publisher: APP_NAME,
+  alternates: {
+    canonical: "/",
+  },
+  // 검색엔진 사이트 소유 확인 (값 받으면 실제 코드로 교체)
+  verification: {
+    // google: "여기에-구글-서치콘솔-코드",
+    other: {
+      // "naver-site-verification": "여기에-네이버-서치어드바이저-코드",
+    },
+  },
 };
 
 export const viewport = {

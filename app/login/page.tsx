@@ -94,11 +94,34 @@ function LoginContent() {
               type="password"
               autoComplete={isLogin ? "current-password" : "new-password"}
               required
-              minLength={isLogin ? undefined : 6}
+              minLength={isLogin ? undefined : 8}
               className="w-full rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-50 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-[#3182F6]"
-              placeholder={isLogin ? "••••••••" : "6자 이상"}
+              placeholder={isLogin ? "••••••••" : "8자 이상"}
             />
           </div>
+
+          {/* honeypot: 사람은 보이지 않음 — bot 가입 차단용 */}
+          {!isLogin && (
+            <div
+              aria-hidden="true"
+              style={{
+                position: "absolute",
+                left: "-10000px",
+                width: "1px",
+                height: "1px",
+                overflow: "hidden",
+              }}
+            >
+              <label htmlFor="company_phone">회사 전화 (입력하지 마세요)</label>
+              <input
+                id="company_phone"
+                name="company_phone"
+                type="text"
+                tabIndex={-1}
+                autoComplete="off"
+              />
+            </div>
+          )}
 
           {state?.error && (
             <p className="text-sm text-red-600 dark:text-red-400">

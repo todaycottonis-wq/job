@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+Allow: /login
+Allow: /terms
+Allow: /privacy
+
+Disallow: /admin
+Disallow: /onboarding
+Disallow: /settings
+Disallow: /reset-password
+Disallow: /forgot-password
+Disallow: /api/
+
+Sitemap: https://job-kappa-coral.vercel.app/sitemap.xml

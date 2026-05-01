@@ -35,11 +35,17 @@ export async function signup(
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
 
+  // honeypot — CSS로 숨김처리된 필드. bot은 채우고 사람은 비움
+  const honeypot = formData.get("company_phone") as string | null;
+  if (honeypot && honeypot.trim().length > 0) {
+    return { error: "잠시 후 다시 시도해주세요." };
+  }
+
   if (!email || !password) {
     return { error: "이메일과 비밀번호를 모두 입력해주세요." };
   }
-  if (password.length < 6) {
-    return { error: "비밀번호는 6자 이상이어야 해요." };
+  if (password.length < 8) {
+    return { error: "비밀번호는 8자 이상이어야 해요." };
   }
 
   // 인증 메일의 redirect URL을 현재 호스트 기반으로 (vercel preview/production 둘 다 대응)

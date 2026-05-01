@@ -18,6 +18,12 @@ import type { ApplicationStatus } from "@/types/database";
 
 export const dynamic = "force-dynamic";
 
+export const metadata = {
+  title: "취준 대시보드 — 지원 현황·일정 한눈에",
+  description:
+    "오늘 지원 몇 건, 이번 주 면접 무엇, 합격률은 어떤가. 커리업 대시보드에서 한 화면에 정리해드려요.",
+};
+
 const IN_PROGRESS_STATUSES: ApplicationStatus[] = [
   "wishlist",
   "applied",
@@ -128,7 +134,7 @@ export default async function DashboardPage() {
   return (
     <div className="p-5 sm:p-6 max-w-5xl mx-auto pl-14 md:pl-6">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold tracking-tight">대시보드</h1>
+        <h1 className="text-2xl font-bold tracking-tight">취준 대시보드</h1>
         <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">
           {isEmpty
             ? "커리업에 오신 걸 환영해요. 첫 지원부터 등록해볼까요?"
