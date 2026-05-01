@@ -1,10 +1,12 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { Lock } from "lucide-react";
 import { updatePassword } from "@/app/actions/auth";
+import { PasswordStrength } from "@/components/auth/password-strength";
 
 export default function ResetPasswordPage() {
+  const [password, setPassword] = useState("");
   const [state, action, pending] = useActionState(updatePassword, undefined);
 
   return (
@@ -36,10 +38,14 @@ export default function ResetPasswordPage() {
               type="password"
               autoComplete="new-password"
               required
-              minLength={6}
-              placeholder="6자 이상"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="8~16자, 대소문자 + 숫자 + 특수문자"
               className="w-full rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-50 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-[#3182F6]"
             />
+            <div className="pt-1">
+              <PasswordStrength value={password} />
+            </div>
           </div>
 
           {state?.error && (

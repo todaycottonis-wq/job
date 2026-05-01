@@ -4,6 +4,7 @@ import { Suspense, useActionState, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { login, signup } from "@/app/actions/auth";
+import { PasswordStrength } from "@/components/auth/password-strength";
 
 export default function LoginPage() {
   return (
@@ -18,6 +19,7 @@ function LoginContent() {
   const resetOk = params.get("reset") === "ok";
 
   const [mode, setMode] = useState<"login" | "signup">("login");
+  const [password, setPassword] = useState("");
   const [loginState, loginAction, loginPending] = useActionState(
     login,
     undefined
@@ -94,10 +96,16 @@ function LoginContent() {
               type="password"
               autoComplete={isLogin ? "current-password" : "new-password"}
               required
-              minLength={isLogin ? undefined : 8}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               className="w-full rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-50 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-[#3182F6]"
-              placeholder={isLogin ? "••••••••" : "8자 이상"}
+              placeholder={isLogin ? "••••••••" : "8~16자, 대소문자 + 숫자 + 특수문자"}
             />
+            {!isLogin && (
+              <div className="pt-1">
+                <PasswordStrength value={password} />
+              </div>
+            )}
           </div>
 
           {/* honeypot: 사람은 보이지 않음 — bot 가입 차단용 */}

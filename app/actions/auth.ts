@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
 import { logEvent } from "@/lib/logger";
 import { koreanizeAuthError } from "@/lib/auth-errors";
+import { validatePassword } from "@/lib/password";
 
 const ONB_COOKIE = "jt_onb";
 
@@ -44,9 +45,8 @@ export async function signup(
   if (!email || !password) {
     return { error: "이메일과 비밀번호를 모두 입력해주세요." };
   }
-  if (password.length < 8) {
-    return { error: "비밀번호는 8자 이상이어야 해요." };
-  }
+  const pwErr = validatePassword(password);
+  if (pwErr) return { error: pwErr };
 
   // 인증 메일의 redirect URL을 현재 호스트 기반으로 (vercel preview/production 둘 다 대응)
   const origin =
@@ -126,9 +126,8 @@ export async function updatePassword(
   formData: FormData
 ) {
   const password = formData.get("password") as string;
-  if (!password || password.length < 6) {
-    return { error: "비밀번호는 6자 이상이어야 해요." };
-  }
+  const pwErr = validatePassword(password);
+  if (pwErr) return { error: pwErr };
 
   const supabase = await createClient();
   const { error } = await supabase.auth.updateUser({ password });
