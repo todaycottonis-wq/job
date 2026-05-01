@@ -7,13 +7,13 @@ export type Json =
   | Json[];
 
 export type ApplicationStatus =
-  | "wishlist"
+  | "drafting"
   | "applied"
-  | "screening"
-  | "interview"
+  | "aptitude"
+  | "interview_1"
+  | "interview_2"
   | "offer"
-  | "rejected"
-  | "withdrawn";
+  | "rejected";
 
 export type ApplicationEventType =
   | "applied"
@@ -193,6 +193,7 @@ export interface Database {
           user_id: string;
           name: string;
           emoji: string | null;
+          color: string;
           created_at: string;
         };
         Insert: {
@@ -200,6 +201,7 @@ export interface Database {
           user_id: string;
           name: string;
           emoji?: string | null;
+          color?: string;
           created_at?: string;
         };
         Update: {
@@ -207,6 +209,49 @@ export interface Database {
           user_id?: string;
           name?: string;
           emoji?: string | null;
+          color?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      user_event_types: {
+        Row: {
+          id: string;
+          user_id: string;
+          name: string;
+          color: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          name: string;
+          color?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          name?: string;
+          color?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      application_documents: {
+        Row: {
+          application_id: string;
+          document_id: string;
+          created_at: string;
+        };
+        Insert: {
+          application_id: string;
+          document_id: string;
+          created_at?: string;
+        };
+        Update: {
+          application_id?: string;
+          document_id?: string;
           created_at?: string;
         };
         Relationships: [];
@@ -255,6 +300,7 @@ export interface Database {
           title: string;
           description: string | null;
           event_type: CalendarEventType;
+          user_event_type_id: string | null;
           starts_at: string;
           ends_at: string | null;
           location: string | null;
@@ -268,6 +314,7 @@ export interface Database {
           title: string;
           description?: string | null;
           event_type: CalendarEventType;
+          user_event_type_id?: string | null;
           starts_at: string;
           ends_at?: string | null;
           location?: string | null;
@@ -281,6 +328,7 @@ export interface Database {
           title?: string;
           description?: string | null;
           event_type?: CalendarEventType;
+          user_event_type_id?: string | null;
           starts_at?: string;
           ends_at?: string | null;
           location?: string | null;
@@ -346,6 +394,8 @@ export type ApplicationEvent =
   Database["public"]["Tables"]["application_events"]["Row"];
 export type Document = Database["public"]["Tables"]["documents"]["Row"];
 export type Folder = Database["public"]["Tables"]["folders"]["Row"];
+export type UserEventType = Database["public"]["Tables"]["user_event_types"]["Row"];
+export type ApplicationDocument = Database["public"]["Tables"]["application_documents"]["Row"];
 export type AiFeedback = Database["public"]["Tables"]["ai_feedback"]["Row"];
 export type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 export type UsageLog = Database["public"]["Tables"]["usage_logs"]["Row"];

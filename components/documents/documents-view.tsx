@@ -14,8 +14,10 @@ import {
 import type { Document, Folder, DocumentType } from "@/types/database";
 import { UploadModal } from "./upload-modal";
 import { FolderModal } from "./folder-modal";
+import { FilePreview } from "./file-preview";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
+import { getFolderColor } from "@/lib/folder-colors";
 
 const TYPE_LABEL: Record<DocumentType, string> = {
   resume: "이력서",
@@ -32,6 +34,7 @@ export function DocumentsView() {
   const [currentFolder, setCurrentFolder] = useState<Folder | null>(null);
   const [showUpload, setShowUpload] = useState(false);
   const [showFolder, setShowFolder] = useState(false);
+  const [previewDoc, setPreviewDoc] = useState<Document | null>(null);
 
   const fetchAll = useCallback(async () => {
     setLoading(true);
@@ -147,15 +150,17 @@ export function DocumentsView() {
                 폴더
               </p>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-                {folders.map((f) => (
+                {folders.map((f) => {
+                  const c = getFolderColor(f.color);
+                  return (
                   <div
                     key={f.id}
                     className="group relative rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 p-4 hover:border-[#3182F6] hover:shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all cursor-pointer"
                     onClick={() => setCurrentFolder(f)}
                   >
                     <div className="flex items-start gap-2.5">
-                      <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-[#3182F6]/10 flex items-center justify-center text-base">
-                        {f.emoji ?? <FolderIcon size={16} className="text-[#3182F6]" />}
+                      <div className={`flex-shrink-0 w-9 h-9 rounded-lg ${c.bg} flex items-center justify-center`}>
+                        <FolderIcon size={16} fill={c.icon} stroke={c.stroke} strokeWidth={1.5} />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{f.name}</p>
@@ -172,7 +177,8 @@ export function DocumentsView() {
                       </button>
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
@@ -196,6 +202,7 @@ export function DocumentsView() {
                     key={d.id}
                     doc={d}
                     onDelete={() => deleteDoc(d)}
+                    onPreview={() => setPreviewDoc(d)}
                   />
                 ))}
               </div>
@@ -224,6 +231,10 @@ export function DocumentsView() {
           }}
         />
       )}
+
+      {previewDoc && (
+        <FilePreview doc={previewDoc} onClose={() => setPreviewDoc(null)} />
+      )}
     </div>
   );
 }
@@ -246,12 +257,15 @@ function isNotionUrl(url: string | null | undefined): boolean {
 function DocumentCard({
   doc,
   onDelete,
+  onPreview,
 }: {
   doc: Document;
   onDelete: () => void;
+  onPreview: () => void;
 }) {
   const isLink = isExternalUrl(doc.file_url);
   const notion = isNotionUrl(doc.file_url);
+  const hasFile = !!doc.file_url && !isLink;
 
   const inner = (
     <div className="flex items-start gap-2.5">
@@ -307,6 +321,18 @@ function DocumentCard({
       >
         {inner}
       </a>
+    );
+  }
+
+  if (hasFile) {
+    return (
+      <button
+        type="button"
+        onClick={onPreview}
+        className={wrapperCls + " text-left w-full cursor-pointer"}
+      >
+        {inner}
+      </button>
     );
   }
 

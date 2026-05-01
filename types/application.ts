@@ -32,23 +32,23 @@ export interface ApplicationFormData {
 }
 
 export const APPLICATION_STATUS_LABELS: Record<ApplicationStatus, string> = {
-  wishlist:   "위시리스트",
-  applied:    "지원완료",
-  screening:  "서류심사",
-  interview:  "면접",
-  offer:      "최종합격",
-  rejected:   "불합격",
-  withdrawn:  "취소",
+  drafting:    "작성중",
+  applied:     "지원완료",
+  aptitude:    "인적성",
+  interview_1: "1차면접",
+  interview_2: "2차면접",
+  offer:       "최종합격",
+  rejected:    "불합격",
 };
 
 export const APPLICATION_STATUS_COLORS: Record<ApplicationStatus, string> = {
-  wishlist:   "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400",
-  applied:    "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
-  screening:  "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300",
-  interview:  "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300",
-  offer:      "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300",
-  rejected:   "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300",
-  withdrawn:  "bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-500",
+  drafting:    "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400",
+  applied:     "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
+  aptitude:    "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300",
+  interview_1: "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300",
+  interview_2: "bg-fuchsia-100 text-fuchsia-700 dark:bg-fuchsia-900/40 dark:text-fuchsia-300",
+  offer:       "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300",
+  rejected:    "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300",
 };
 
 // ── API request / response shapes ─────────────────────────────────────────

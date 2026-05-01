@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { X, Trash2 } from "lucide-react";
-import type { CalendarEvent, CalendarEventType } from "@/types/database";
+import { useEffect, useState } from "react";
+import { X, Trash2, Plus } from "lucide-react";
+import type { CalendarEvent, CalendarEventType, UserEventType } from "@/types/database";
+import { EVENT_COLOR_OPTIONS, getEventColor } from "@/lib/event-colors";
 
 const TYPE_OPTIONS: { value: CalendarEventType; label: string }[] = [
   { value: "interview", label: "면접" },
@@ -46,6 +47,43 @@ export function EventForm({ initial, presetDate, onClose, onSaved }: Props) {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // 사용자 정의 유형
+  const [userTypes, setUserTypes] = useState<UserEventType[]>([]);
+  // 선택된 유형 식별: 기본 유형(string)이거나 사용자 유형(`custom:${id}`)
+  const initialTypeKey = (initial as unknown as { user_event_type_id?: string | null })?.user_event_type_id
+    ? `custom:${(initial as unknown as { user_event_type_id?: string | null }).user_event_type_id}`
+    : eventType;
+  const [typeKey, setTypeKey] = useState<string>(initialTypeKey);
+  const [showAddType, setShowAddType] = useState(false);
+  const [newTypeName, setNewTypeName] = useState("");
+  const [newTypeColor, setNewTypeColor] = useState("purple");
+
+  useEffect(() => {
+    void (async () => {
+      const res = await fetch("/api/event-types");
+      const json = await res.json();
+      setUserTypes(json.data ?? []);
+    })();
+  }, []);
+
+  async function addCustomType(e: React.MouseEvent) {
+    e.preventDefault();
+    if (!newTypeName.trim()) return;
+    const res = await fetch("/api/event-types", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: newTypeName.trim(), color: newTypeColor }),
+    });
+    const json = await res.json();
+    if (res.ok && json.data) {
+      const created = json.data as UserEventType;
+      setUserTypes((prev) => [...prev, created]);
+      setTypeKey(`custom:${created.id}`);
+      setNewTypeName("");
+      setShowAddType(false);
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!title.trim()) {
@@ -60,12 +98,23 @@ export function EventForm({ initial, presetDate, onClose, onSaved }: Props) {
         : "/api/calendar-events";
       const method = isEdit ? "PATCH" : "POST";
 
+      // typeKey가 'custom:xxx'면 user_event_type_id 사용 (event_type은 'other')
+      let event_type: CalendarEventType;
+      let user_event_type_id: string | null = null;
+      if (typeKey.startsWith("custom:")) {
+        event_type = "other";
+        user_event_type_id = typeKey.slice("custom:".length);
+      } else {
+        event_type = typeKey as CalendarEventType;
+      }
+
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: title.trim(),
-          event_type: eventType,
+          event_type,
+          user_event_type_id,
           starts_at: new Date(startsAt).toISOString(),
           location: location || null,
           meeting_url: meetingUrl || null,
@@ -128,19 +177,83 @@ export function EventForm({ initial, presetDate, onClose, onSaved }: Props) {
 
           <div className="grid grid-cols-2 gap-3">
             <Field label="유형">
-              <select
-                value={eventType}
-                onChange={(e) =>
-                  setEventType(e.target.value as CalendarEventType)
-                }
-                className={inputCls}
-              >
-                {TYPE_OPTIONS.map((o) => (
-                  <option key={o.value} value={o.value}>
-                    {o.label}
-                  </option>
-                ))}
-              </select>
+              <div className="space-y-1.5">
+                <select
+                  value={typeKey}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    if (v === "__add__") {
+                      setShowAddType(true);
+                      return;
+                    }
+                    setTypeKey(v);
+                    if (!v.startsWith("custom:")) {
+                      setEventType(v as CalendarEventType);
+                    }
+                  }}
+                  className={inputCls}
+                >
+                  <optgroup label="기본">
+                    {TYPE_OPTIONS.map((o) => (
+                      <option key={o.value} value={o.value}>
+                        {o.label}
+                      </option>
+                    ))}
+                  </optgroup>
+                  {userTypes.length > 0 && (
+                    <optgroup label="내 유형">
+                      {userTypes.map((t) => (
+                        <option key={t.id} value={`custom:${t.id}`}>
+                          {t.name}
+                        </option>
+                      ))}
+                    </optgroup>
+                  )}
+                  <option value="__add__">+ 새 유형 추가...</option>
+                </select>
+                {showAddType && (
+                  <div className="rounded-lg border border-zinc-200 dark:border-zinc-700 p-2 space-y-2 bg-zinc-50 dark:bg-zinc-800/50">
+                    <input
+                      type="text"
+                      value={newTypeName}
+                      onChange={(e) => setNewTypeName(e.target.value)}
+                      placeholder="예) 스터디"
+                      className="w-full rounded border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-2 py-1 text-xs"
+                    />
+                    <div className="flex gap-1">
+                      {EVENT_COLOR_OPTIONS.map((c) => (
+                        <button
+                          key={c.id}
+                          type="button"
+                          onClick={() => setNewTypeColor(c.id)}
+                          title={c.label}
+                          className={`w-5 h-5 rounded-full ${c.bg} ${
+                            newTypeColor === c.id
+                              ? "ring-2 ring-offset-1 ring-[#3182F6]"
+                              : ""
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <div className="flex gap-1 justify-end">
+                      <button
+                        type="button"
+                        onClick={() => setShowAddType(false)}
+                        className="rounded border border-zinc-200 dark:border-zinc-700 px-2 py-0.5 text-[11px]"
+                      >
+                        취소
+                      </button>
+                      <button
+                        type="button"
+                        onClick={addCustomType}
+                        className="inline-flex items-center gap-0.5 rounded bg-[#3182F6] text-white px-2 py-0.5 text-[11px]"
+                      >
+                        <Plus size={9} /> 추가
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </Field>
             <Field label="시작">
               <input

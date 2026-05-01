@@ -25,10 +25,11 @@ export const metadata = {
 };
 
 const IN_PROGRESS_STATUSES: ApplicationStatus[] = [
-  "wishlist",
+  "drafting",
   "applied",
-  "screening",
-  "interview",
+  "aptitude",
+  "interview_1",
+  "interview_2",
 ];
 
 interface RecentApp {
@@ -77,7 +78,7 @@ export default async function DashboardPage() {
   ] = await Promise.all([
     supabase.from("job_applications").select("*", { count: "exact", head: true }).eq("user_id", user.id),
     supabase.from("job_applications").select("*", { count: "exact", head: true }).eq("user_id", user.id).in("status", IN_PROGRESS_STATUSES),
-    supabase.from("job_applications").select("*", { count: "exact", head: true }).eq("user_id", user.id).eq("status", "interview"),
+    supabase.from("job_applications").select("*", { count: "exact", head: true }).eq("user_id", user.id).in("status", ["interview_1", "interview_2"]),
     supabase.from("job_applications").select("*", { count: "exact", head: true }).eq("user_id", user.id).eq("status", "offer"),
     supabase.from("job_applications").select("*", { count: "exact", head: true }).eq("user_id", user.id).gte("created_at", thirtyDaysAgo.toISOString()),
     supabase
@@ -108,13 +109,13 @@ export default async function DashboardPage() {
   // 상태별 분포 집계
   const statusBreakdown: { status: ApplicationStatus; count: number }[] = (
     [
-      "wishlist",
+      "drafting",
       "applied",
-      "screening",
-      "interview",
+      "aptitude",
+      "interview_1",
+      "interview_2",
       "offer",
       "rejected",
-      "withdrawn",
     ] as ApplicationStatus[]
   ).map((s) => ({
     status: s,

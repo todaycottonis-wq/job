@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { X } from "lucide-react";
-
-const EMOJI_OPTIONS = ["📁", "📄", "💼", "🎯", "⭐", "🔥", "💡", "📚"];
+import { Folder as FolderIcon, X } from "lucide-react";
+import { FOLDER_COLORS, getFolderColor } from "@/lib/folder-colors";
 
 interface Props {
   onClose: () => void;
@@ -12,7 +11,7 @@ interface Props {
 
 export function FolderModal({ onClose, onCreated }: Props) {
   const [name, setName] = useState("");
-  const [emoji, setEmoji] = useState<string>("📁");
+  const [color, setColor] = useState<string>("blush");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,7 +27,7 @@ export function FolderModal({ onClose, onCreated }: Props) {
       const res = await fetch("/api/folders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name.trim(), emoji }),
+        body: JSON.stringify({ name: name.trim(), color }),
       });
       const json = await res.json();
       if (!res.ok) {
@@ -40,6 +39,8 @@ export function FolderModal({ onClose, onCreated }: Props) {
       setPending(false);
     }
   }
+
+  const previewColor = getFolderColor(color);
 
   return (
     <div
@@ -58,6 +59,13 @@ export function FolderModal({ onClose, onCreated }: Props) {
         </div>
 
         <form onSubmit={handleSubmit} className="px-6 py-4 space-y-3">
+          {/* preview */}
+          <div className="flex items-center justify-center py-3">
+            <div className={`w-16 h-16 rounded-2xl ${previewColor.bg} flex items-center justify-center`}>
+              <FolderIcon size={28} fill={previewColor.icon} stroke={previewColor.stroke} strokeWidth={1.5} />
+            </div>
+          </div>
+
           <div className="space-y-1">
             <label className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
               폴더명 *
@@ -72,21 +80,25 @@ export function FolderModal({ onClose, onCreated }: Props) {
 
           <div className="space-y-1">
             <label className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
-              이모지
+              색상
             </label>
-            <div className="flex flex-wrap gap-1.5">
-              {EMOJI_OPTIONS.map((e) => (
+            <div className="flex flex-wrap gap-2">
+              {FOLDER_COLORS.map((c) => (
                 <button
-                  key={e}
+                  key={c.id}
                   type="button"
-                  onClick={() => setEmoji(e)}
-                  className={`w-9 h-9 rounded-lg flex items-center justify-center text-base transition-colors ${
-                    emoji === e
-                      ? "bg-[#3182F6]/10 ring-2 ring-[#3182F6]"
-                      : "bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700"
+                  onClick={() => setColor(c.id)}
+                  title={c.label}
+                  className={`w-9 h-9 rounded-xl ${c.bg} flex items-center justify-center transition-all ${
+                    color === c.id
+                      ? "ring-2 ring-offset-2 ring-[#3182F6] dark:ring-offset-zinc-900"
+                      : "hover:scale-105"
                   }`}
                 >
-                  {e}
+                  <span
+                    className="w-4 h-4 rounded-md"
+                    style={{ background: c.icon }}
+                  />
                 </button>
               ))}
             </div>

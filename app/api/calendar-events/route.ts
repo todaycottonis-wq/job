@@ -6,6 +6,7 @@ import type { CalendarEventType } from "@/types/database";
 interface CreateBody {
   title: string;
   event_type: CalendarEventType;
+  user_event_type_id?: string | null;
   starts_at: string; // ISO
   ends_at?: string | null;
   description?: string | null;
@@ -62,6 +63,7 @@ export async function POST(request: NextRequest): Promise<Response> {
       user_id: user.id,
       title: body.title.trim(),
       event_type: body.event_type,
+      user_event_type_id: body.user_event_type_id || null,
       starts_at: body.starts_at,
       ends_at: body.ends_at || null,
       description: body.description || null,

@@ -1,14 +1,14 @@
 "use client";
 
-import { useState } from "react";
-import { X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { X, FileText, NotebookText } from "lucide-react";
 import type {
   ApplicationRow,
   ApplicationFormData,
   ApplicationFormMode,
 } from "@/types/application";
 import { APPLICATION_STATUS_LABELS } from "@/types/application";
-import type { ApplicationStatus } from "@/types/database";
+import type { ApplicationStatus, Document } from "@/types/database";
 
 interface ApplicationFormProps {
   mode: ApplicationFormMode;
@@ -18,19 +18,19 @@ interface ApplicationFormProps {
 }
 
 const STATUS_OPTIONS: ApplicationStatus[] = [
-  "wishlist",
+  "drafting",
   "applied",
-  "screening",
-  "interview",
+  "aptitude",
+  "interview_1",
+  "interview_2",
   "offer",
   "rejected",
-  "withdrawn",
 ];
 
 const EMPTY_FORM: ApplicationFormData = {
   company_name: "",
   position: "",
-  status: "wishlist",
+  status: "drafting",
   job_url: "",
   applied_at: "",
   deadline: "",
@@ -58,6 +58,37 @@ export function ApplicationForm({
   );
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // 연결된 문서들
+  const [allDocs, setAllDocs] = useState<Document[]>([]);
+  const [selectedDocIds, setSelectedDocIds] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    void (async () => {
+      const res = await fetch("/api/documents");
+      const json = await res.json();
+      setAllDocs(json.data ?? []);
+    })();
+    if (mode === "edit" && initial?.id) {
+      void (async () => {
+        const res = await fetch(`/api/applications/${initial.id}/documents`);
+        const json = await res.json();
+        const ids = (json.data ?? []).map(
+          (r: { document_id: string }) => r.document_id
+        );
+        setSelectedDocIds(new Set(ids));
+      })();
+    }
+  }, [mode, initial?.id]);
+
+  function toggleDoc(id: string) {
+    setSelectedDocIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
 
   function set(field: keyof ApplicationFormData, value: string) {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -98,7 +129,22 @@ export function ApplicationForm({
         setError(json.error ?? "오류가 발생했습니다.");
         return;
       }
-      onSuccess(json.data as ApplicationRow);
+      const created = json.data as ApplicationRow;
+
+      // 연결 문서 저장
+      try {
+        await fetch(`/api/applications/${created.id}/documents`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            document_ids: Array.from(selectedDocIds),
+          }),
+        });
+      } catch {
+        /* 문서 연결 실패는 본 저장과 분리 — 무시 */
+      }
+
+      onSuccess(created);
     } catch {
       setError("네트워크 오류가 발생했습니다.");
     } finally {
@@ -185,6 +231,44 @@ export function ApplicationForm({
               placeholder="https://"
               className={inputCls}
             />
+          </Field>
+
+          <Field label={`제출 문서 ${selectedDocIds.size > 0 ? `(${selectedDocIds.size}개)` : ""}`}>
+            {allDocs.length === 0 ? (
+              <p className="text-xs text-zinc-400 py-2">
+                먼저 문서함에 이력서·자소서 등을 등록하세요.
+              </p>
+            ) : (
+              <div className="max-h-40 overflow-y-auto rounded-lg border border-zinc-200 dark:border-zinc-700 divide-y divide-zinc-100 dark:divide-zinc-800">
+                {allDocs.map((d) => {
+                  const checked = selectedDocIds.has(d.id);
+                  const isLink = !!d.file_url && /^https?:\/\//i.test(d.file_url);
+                  return (
+                    <label
+                      key={d.id}
+                      className="flex items-center gap-2.5 px-3 py-2 cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={() => toggleDoc(d.id)}
+                        className="rounded border-zinc-300 text-[#3182F6] focus:ring-[#3182F6]"
+                      />
+                      <div className="w-6 h-6 rounded-md bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center flex-shrink-0">
+                        {isLink ? (
+                          <NotebookText size={11} className="text-zinc-500" />
+                        ) : (
+                          <FileText size={11} className="text-zinc-500" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-medium truncate">{d.title}</p>
+                      </div>
+                    </label>
+                  );
+                })}
+              </div>
+            )}
           </Field>
 
           <Field label="메모">

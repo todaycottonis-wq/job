@@ -1,10 +1,8 @@
 import { NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase-server";
-import { logEvent } from "@/lib/logger";
 
 interface CreateBody {
   name: string;
-  emoji?: string | null;
   color?: string;
 }
 
@@ -17,7 +15,7 @@ export async function GET(): Promise<Response> {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const { data, error } = await supabase
-    .from("folders")
+    .from("user_event_types")
     .select("*")
     .eq("user_id", user.id)
     .order("created_at", { ascending: true });
@@ -36,20 +34,18 @@ export async function POST(request: NextRequest): Promise<Response> {
 
   const body = (await request.json()) as CreateBody;
   if (!body.name?.trim())
-    return Response.json({ error: "폴더명은 필수입니다." }, { status: 400 });
+    return Response.json({ error: "이름은 필수입니다." }, { status: 400 });
 
   const { data, error } = await supabase
-    .from("folders")
+    .from("user_event_types")
     .insert({
       user_id: user.id,
       name: body.name.trim(),
-      emoji: body.emoji || null,
-      color: body.color || "blush",
+      color: body.color || "purple",
     })
     .select("*")
     .single();
 
   if (error) return Response.json({ error: error.message }, { status: 500 });
-  await logEvent("folder_create", { folder_id: data.id }, user.id);
   return Response.json({ data }, { status: 201 });
 }

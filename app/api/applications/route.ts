@@ -132,7 +132,7 @@ async function insertApplication(
       user_id: userId,
       company_id: companyId,
       position: body.position.trim(),
-      status: body.status ?? "wishlist",
+      status: body.status ?? "drafting",
       job_url: body.job_url || null,
       salary_range: body.salary_range || null,
       location: body.location || null,

@@ -27,13 +27,13 @@ interface MonthlyItem {
 }
 
 const STATUS_COLOR: Record<ApplicationStatus, string> = {
-  wishlist: "#a1a1aa",
-  applied: "#3b82f6",
-  screening: "#eab308",
-  interview: "#a855f7",
-  offer: "#22c55e",
-  rejected: "#ef4444",
-  withdrawn: "#71717a",
+  drafting:    "#a1a1aa",
+  applied:     "#3b82f6",
+  aptitude:    "#eab308",
+  interview_1: "#a855f7",
+  interview_2: "#d946ef",
+  offer:       "#22c55e",
+  rejected:    "#ef4444",
 };
 
 interface Props {

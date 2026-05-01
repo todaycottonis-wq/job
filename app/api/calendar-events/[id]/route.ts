@@ -9,6 +9,7 @@ type CalendarEventUpdate =
 interface UpdateBody {
   title?: string;
   event_type?: CalendarEventType;
+  user_event_type_id?: string | null;
   starts_at?: string;
   ends_at?: string | null;
   description?: string | null;
@@ -33,6 +34,8 @@ export async function PATCH(
   const update: CalendarEventUpdate = {};
   if (body.title !== undefined) update.title = body.title.trim();
   if (body.event_type !== undefined) update.event_type = body.event_type;
+  if ("user_event_type_id" in body)
+    update.user_event_type_id = body.user_event_type_id || null;
   if (body.starts_at !== undefined) update.starts_at = body.starts_at;
   if ("ends_at" in body) update.ends_at = body.ends_at || null;
   if ("description" in body) update.description = body.description || null;

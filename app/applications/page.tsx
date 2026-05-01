@@ -15,10 +15,11 @@ import type { ApplicationStatus } from "@/types/database";
 
 const FILTER_TABS: { label: string; value: ApplicationFilter["status"] }[] = [
   { label: "전체", value: "all" },
-  { label: "위시리스트", value: "wishlist" },
+  { label: "작성중", value: "drafting" },
   { label: "지원완료", value: "applied" },
-  { label: "서류심사", value: "screening" },
-  { label: "면접", value: "interview" },
+  { label: "인적성", value: "aptitude" },
+  { label: "1차면접", value: "interview_1" },
+  { label: "2차면접", value: "interview_2" },
   { label: "최종합격", value: "offer" },
   { label: "불합격", value: "rejected" },
 ];
