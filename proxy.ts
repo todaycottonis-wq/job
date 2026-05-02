@@ -131,7 +131,8 @@ export async function proxy(request: NextRequest) {
 export const config = {
   matcher: [
     // 정적 파일과 검색엔진용 파일은 proxy 통과 시키지 않음
-    // (sitemap.xml / robots.txt가 /login으로 redirect되면 검색엔진 색인 실패)
-    "/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|xml|txt)$).*)",
+    // - sitemap.xml / robots.txt: /login redirect되면 검색엔진 색인 실패
+    // - manifest.webmanifest: redirect되면 Chrome이 PWA 아이콘을 기본값으로 fallback
+    "/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|manifest.webmanifest|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|xml|txt|webmanifest)$).*)",
   ],
 };
