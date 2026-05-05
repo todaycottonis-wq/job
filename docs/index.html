@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="ko" class="h-full scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>커리업 (Career up) · Spec & Flow Docs</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📋</text></svg>" />
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+  <script>
+    (function () {
+      try {
+        var s = localStorage.getItem('docs-theme') || 'system';
+        var sysDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var dark = s === 'dark' || (s === 'system' && sysDark);
+        if (dark) document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Pretendard Variable', 'Pretendard', '-apple-system', 'system-ui', 'sans-serif'],
+            mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
+          },
+          colors: {
+            brand: {
+              DEFAULT: '#3182F6',
+              hover: '#1a6fe8',
+              active: '#1560d4',
+            },
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    body { word-break: keep-all; font-family: 'Pretendard Variable', Pretendard, -apple-system, system-ui, sans-serif; }
+    .nav-link { position: relative; }
+    .nav-link.active { color: #3182F6; font-weight: 600; }
+    .nav-link.active::before {
+      content: ''; position: absolute; left: -16px; top: 50%; transform: translateY(-50%);
+      width: 3px; height: 16px; background: #3182F6; border-radius: 2px;
+    }
+    .prose h3 { font-size: 1.05rem; font-weight: 600; margin-top: 2.25rem; margin-bottom: 0.75rem; letter-spacing: -0.01em; }
+    .prose p { margin-top: 0.75rem; line-height: 1.75; color: rgb(82 82 91); font-size: 0.9375rem; }
+    .dark .prose p { color: rgb(212 212 216); }
+    .prose ul { margin-top: 0.75rem; padding-left: 1.25rem; list-style: disc; }
+    .prose ul li { margin-top: 0.375rem; line-height: 1.7; color: rgb(82 82 91); font-size: 0.9375rem; }
+    .dark .prose ul li { color: rgb(212 212 216); }
+    .prose code { background: rgb(244 244 245); padding: 0.125rem 0.375rem; border-radius: 0.25rem; font-size: 0.85em; font-family: ui-monospace, monospace; color: rgb(63 63 70); }
+    .dark .prose code { background: rgb(39 39 42); color: rgb(228 228 231); }
+    .mermaid {
+      background: white;
+      border-radius: 0.875rem;
+      padding: 1.5rem;
+      border: 1px solid rgb(228 228 231);
+      margin-top: 1rem;
+    }
+    .dark .mermaid { background: rgb(24 24 27); border-color: rgb(39 39 42); }
+    .mermaid svg { max-width: 100%; height: auto; margin: 0 auto; display: block; }
+  </style>
+</head>
+<body class="min-h-full bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-50">
+  <div class="md:flex">
+    <!-- Sidebar -->
+    <aside class="md:fixed md:inset-y-0 md:left-0 md:w-64 md:flex md:flex-col border-r border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-6 py-8 md:overflow-y-auto">
+      <div class="flex items-center gap-2.5 mb-8">
+        <div class="w-9 h-9 rounded-xl bg-[#3182F6] flex items-center justify-center text-white font-bold text-sm">커</div>
+        <div>
+          <div class="text-base font-semibold leading-tight">커리업</div>
+          <div class="text-[11px] text-zinc-500 dark:text-zinc-400">Spec & Flow Docs</div>
+        </div>
+      </div>
+
+      <nav id="sidebar-nav" class="space-y-0.5 text-[13px]">
+        <a href="#overview" class="nav-link block py-1.5 text-zinc-600 dark:text-zinc-400 hover:text-[#3182F6] transition-colors">1. Overview</a>
+        <a href="#design-system" class="nav-link block py-1.5 text-zinc-600 dark:text-zinc-400 hover:text-[#3182F6] transition-colors">2. Design System</a>
+        <a href="#user-flows" class="nav-link block py-1.5 text-zinc-600 dark:text-zinc-400 hover:text-[#3182F6] transition-colors">3. User Flows</a>
+        <a href="#conditional-ux" class="nav-link block py-1.5 text-zinc-600 dark:text-zinc-400 hover:text-[#3182F6] transition-colors">4. 분기 처리</a>
+        <a href="#tech-stack" class="nav-link block py-1.5 text-zinc-600 dark:text-zinc-400 hover:text-[#3182F6] transition-colors">5. Tech Stack</a>
+        <a href="#db-schema" class="nav-link block py-1.5 text-zinc-600 dark:text-zinc-400 hover:text-[#3182F6] transition-colors">6. DB Schema</a>
+        <a href="#deploy" class="nav-link block py-1.5 text-zinc-600 dark:text-zinc-400 hover:text-[#3182F6] transition-colors">7. 배포 & 환경</a>
+      </nav>
+
+      <div class="mt-auto pt-8 border-t border-zinc-200 dark:border-zinc-800 mt-6 space-y-3">
+        <div class="space-y-1.5">
+          <a href="https://github.com/todaycottonis-wq/job" target="_blank" rel="noopener" class="block text-xs text-zinc-500 hover:text-[#3182F6] dark:text-zinc-400 transition-colors">GitHub · 본 앱 →</a>
+          <a href="https://github.com/todaycottonis-wq/jobtrack-landing" target="_blank" rel="noopener" class="block text-xs text-zinc-500 hover:text-[#3182F6] dark:text-zinc-400 transition-colors">GitHub · 랜딩 →</a>
+          <a href="https://job-kappa-coral.vercel.app" target="_blank" rel="noopener" class="block text-xs text-zinc-500 hover:text-[#3182F6] dark:text-zinc-400 transition-colors">Production →</a>
+        </div>
+        <button id="theme-toggle" type="button" class="w-full text-left text-xs text-zinc-500 hover:text-[#3182F6] dark:text-zinc-400 transition-colors">
+          <span id="theme-label">테마: 시스템</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="md:ml-64 px-6 md:px-12 lg:px-20 py-12 md:py-16 max-w-3xl mx-auto md:mx-0">
+      <header class="mb-20">
+        <p class="text-xs font-semibold text-[#3182F6] uppercase tracking-wider mb-3">Product Documentation</p>
+        <h1 class="text-4xl md:text-5xl font-bold tracking-tight">커리업 <span class="text-zinc-400 dark:text-zinc-600 font-normal">/ Career up</span></h1>
+        <p class="mt-5 text-lg text-zinc-600 dark:text-zinc-300 leading-relaxed">
+          취업 지원 현황·면접 일정·이력서·자소서까지 한 곳에서 관리하는 취준생 대시보드.
+          디자인 결정, 유저 플로우, 분기 처리, 기술 스택, DB 스키마, 배포까지 — 만들면서 정리한 모든 것.
+        </p>
+        <div class="mt-7 flex flex-wrap gap-2">
+          <span class="inline-flex items-center px-2 py-1 rounded-md bg-zinc-100 dark:bg-zinc-800 text-xs font-medium text-zinc-700 dark:text-zinc-300">Next.js 16</span>
+          <span class="inline-flex items-center px-2 py-1 rounded-md bg-zinc-100 dark:bg-zinc-800 text-xs font-medium text-zinc-700 dark:text-zinc-300">Supabase</span>
+          <span class="inline-flex items-center px-2 py-1 rounded-md bg-zinc-100 dark:bg-zinc-800 text-xs font-medium text-zinc-700 dark:text-zinc-300">Tailwind v4</span>
+          <span class="inline-flex items-center px-2 py-1 rounded-md bg-zinc-100 dark:bg-zinc-800 text-xs font-medium text-zinc-700 dark:text-zinc-300">React 19</span>
+          <span class="inline-flex items-center px-2 py-1 rounded-md bg-zinc-100 dark:bg-zinc-800 text-xs font-medium text-zinc-700 dark:text-zinc-300">Vercel · ICN1</span>
+        </div>
+      </header>
+
+      <!-- ─────────────────────────────────────── -->
+      <!-- Section 1: Overview                     -->
+      <!-- ─────────────────────────────────────── -->
+      <section id="overview" class="mb-24 prose">
+        <h2 class="text-2xl font-bold tracking-tight mb-2">1. Overview</h2>
+        <p class="text-sm text-zinc-500 dark:text-zinc-400 !mt-0">커리업이 무엇이고, 누구를 위해, 왜 만들었는지.</p>
+
+        <h3>한 줄 정의</h3>
+        <p><strong>커리업</strong>은 취업 준비생이 지원 회사·면접 일정·이력서/자소서·AI 피드백을 한 곳에서 관리하는 웹 대시보드다.</p>
+
+        <h3>왜 만들었나</h3>
+        <ul>
+          <li>취준생은 보통 노션·엑셀·캘린더·메모 앱에 흩어진 정보로 지원 현황을 추적함 — 마감을 놓치고, 회사가 헷갈리고, 면접 일정이 충돌</li>
+          <li>"내가 어디까지 진행했는지" 한눈에 보여주는 단일 진실원(single source of truth)이 필요했음</li>
+          <li>자소서·면접 준비도 AI가 도와주면 시간 단축</li>
+        </ul>
+
+        <h3>누구를 위해</h3>
+        <ul>
+          <li>현재 동시에 5개 이상 회사에 지원하고 있는 취준생</li>
+          <li>이직 준비 중인 직장인</li>
+          <li>인턴·공채·수시 채용을 함께 관리하는 학생</li>
+        </ul>
+
+        <h3>핵심 가치 — 3가지</h3>
+        <div class="not-prose grid sm:grid-cols-3 gap-3 mt-4">
+          <div class="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
+            <div class="text-2xl mb-2">📊</div>
+            <div class="font-semibold text-sm mb-1">한눈에 본다</div>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">대시보드 + 지원현황으로 진행 단계 즉시 파악</p>
+          </div>
+          <div class="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
+            <div class="text-2xl mb-2">🤖</div>
+            <div class="font-semibold text-sm mb-1">AI가 도와준다</div>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">자소서 첨삭, 면접 예상 질문, 이력서 리뷰</p>
+          </div>
+          <div class="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
+            <div class="text-2xl mb-2">🗓️</div>
+            <div class="font-semibold text-sm mb-1">놓치지 않는다</div>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">마감·면접 일정을 캘린더와 연동</p>
+          </div>
+        </div>
+
+        <h3>주요 페이지</h3>
+        <div class="not-prose mt-4 grid sm:grid-cols-2 gap-2">
+          <div class="flex items-start gap-3 p-3 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+            <div class="w-8 h-8 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-sm shrink-0">📊</div>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-medium">대시보드 <span class="text-[10px] font-mono text-zinc-400 ml-1">/</span></div>
+              <p class="text-xs text-zinc-500 mt-0.5 dark:text-zinc-400">진행 중 지원 요약, 다가오는 일정</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-3 p-3 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+            <div class="w-8 h-8 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-sm shrink-0">🗓️</div>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-medium">캘린더 <span class="text-[10px] font-mono text-zinc-400 ml-1">/calendar</span></div>
+              <p class="text-xs text-zinc-500 mt-0.5 dark:text-zinc-400">면접·마감·팔로우업 통합 일정</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-3 p-3 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+            <div class="w-8 h-8 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-sm shrink-0">💼</div>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-medium">지원현황 <span class="text-[10px] font-mono text-zinc-400 ml-1">/applications</span></div>
+              <p class="text-xs text-zinc-500 mt-0.5 dark:text-zinc-400">회사·포지션별 단계 추적</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-3 p-3 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+            <div class="w-8 h-8 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-sm shrink-0">✏️</div>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-medium">자소서 <span class="text-[10px] font-mono text-zinc-400 ml-1">/essays</span></div>
+              <p class="text-xs text-zinc-500 mt-0.5 dark:text-zinc-400">회사별 자소서 문항 관리, 글자수 카운트</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-3 p-3 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+            <div class="w-8 h-8 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-sm shrink-0">📁</div>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-medium">문서함 <span class="text-[10px] font-mono text-zinc-400 ml-1">/documents</span></div>
+              <p class="text-xs text-zinc-500 mt-0.5 dark:text-zinc-400">이력서·포트폴리오 폴더링</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-3 p-3 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+            <div class="w-8 h-8 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-sm shrink-0">✨</div>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-medium">AI 피드백 <span class="text-[10px] font-mono text-zinc-400 ml-1">/ai</span> <span class="ml-1 inline-flex items-center px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300 text-[9px] font-bold">출시 예정</span></div>
+              <p class="text-xs text-zinc-500 mt-0.5 dark:text-zinc-400">자소서 첨삭·면접 질문 생성</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─────────────────────────────────────── -->
+      <!-- Section 2: Design System                -->
+      <!-- ─────────────────────────────────────── -->
+      <section id="design-system" class="mb-24 prose">
+        <h2 class="text-2xl font-bold tracking-tight mb-2">2. Design System</h2>
+        <p class="text-sm text-zinc-500 dark:text-zinc-400 !mt-0">컬러·타이포·컴포넌트 토큰. 본 앱 전체에서 동일하게 사용.</p>
+
+        <h3>컬러 팔레트</h3>
+        <p>Primary는 토스 스타일 블루(<code>#3182F6</code>). 베이스 그레이는 Tailwind <code>zinc</code> 스케일.</p>
+
+        <div class="not-prose mt-4 space-y-5">
+          <div>
+            <div class="text-xs font-semibold text-zinc-500 mb-2">Primary</div>
+            <div class="grid grid-cols-3 gap-2">
+              <div class="rounded-lg p-4 bg-[#3182F6] text-white">
+                <div class="text-[10px] opacity-80 uppercase tracking-wider">Primary</div>
+                <div class="font-mono text-sm mt-1">#3182F6</div>
+              </div>
+              <div class="rounded-lg p-4 bg-[#1a6fe8] text-white">
+                <div class="text-[10px] opacity-80 uppercase tracking-wider">Hover</div>
+                <div class="font-mono text-sm mt-1">#1a6fe8</div>
+              </div>
+              <div class="rounded-lg p-4 bg-[#1560d4] text-white">
+                <div class="text-[10px] opacity-80 uppercase tracking-wider">Active</div>
+                <div class="font-mono text-sm mt-1">#1560d4</div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="text-xs font-semibold text-zinc-500 mb-2">Zinc Scale (Base)</div>
+            <div class="grid grid-cols-10 gap-1">
+              <div class="aspect-square rounded bg-zinc-50 border border-zinc-200" title="zinc-50"></div>
+              <div class="aspect-square rounded bg-zinc-100" title="zinc-100"></div>
+              <div class="aspect-square rounded bg-zinc-200" title="zinc-200"></div>
+              <div class="aspect-square rounded bg-zinc-300" title="zinc-300"></div>
+              <div class="aspect-square rounded bg-zinc-400" title="zinc-400"></div>
+              <div class="aspect-square rounded bg-zinc-500" title="zinc-500"></div>
+              <div class="aspect-square rounded bg-zinc-600" title="zinc-600"></div>
+              <div class="aspect-square rounded bg-zinc-700" title="zinc-700"></div>
+              <div class="aspect-square rounded bg-zinc-800" title="zinc-800"></div>
+              <div class="aspect-square rounded bg-zinc-900" title="zinc-900"></div>
+            </div>
+            <div class="grid grid-cols-10 gap-1 text-[9px] text-zinc-400 font-mono mt-1 text-center">
+              <div>50</div><div>100</div><div>200</div><div>300</div><div>400</div>
+              <div>500</div><div>600</div><div>700</div><div>800</div><div>900</div>
+            </div>
+          </div>
+
+          <div>
+            <div class="text-xs font-semibold text-zinc-500 mb-2">Semantic</div>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <div class="rounded-lg border border-green-200 bg-green-50 dark:bg-green-900/20 dark:border-green-900/40 p-3">
+                <div class="text-xs font-semibold text-green-700 dark:text-green-300">Success</div>
+                <div class="font-mono text-[10px] text-green-700/70 dark:text-green-300/70 mt-0.5">green-50/700</div>
+              </div>
+              <div class="rounded-lg border border-blue-200 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-900/40 p-3">
+                <div class="text-xs font-semibold text-blue-700 dark:text-blue-300">Info</div>
+                <div class="font-mono text-[10px] text-blue-700/70 dark:text-blue-300/70 mt-0.5">blue-50/700</div>
+              </div>
+              <div class="rounded-lg border border-amber-200 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-900/40 p-3">
+                <div class="text-xs font-semibold text-amber-700 dark:text-amber-300">Warning</div>
+                <div class="font-mono text-[10px] text-amber-700/70 dark:text-amber-300/70 mt-0.5">amber-50/700</div>
+              </div>
+              <div class="rounded-lg border border-red-200 bg-red-50 dark:bg-red-900/20 dark:border-red-900/40 p-3">
+                <div class="text-xs font-semibold text-red-700 dark:text-red-300">Error</div>
+                <div class="font-mono text-[10px] text-red-700/70 dark:text-red-300/70 mt-0.5">red-50/700</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <h3>타이포그래피</h3>
+        <div class="not-prose mt-3 space-y-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6">
+          <div>
+            <div class="text-3xl font-bold tracking-tight">제목 H1 — 32px Bold</div>
+            <div class="text-[10px] font-mono text-zinc-400 mt-1">text-3xl · font-bold · tracking-tight</div>
+          </div>
+          <div>
+            <div class="text-2xl font-bold tracking-tight">섹션 H2 — 24px Bold</div>
+            <div class="text-[10px] font-mono text-zinc-400 mt-1">text-2xl · font-bold</div>
+          </div>
+          <div>
+            <div class="text-base font-medium">본문 — 16px Medium</div>
+            <div class="text-[10px] font-mono text-zinc-400 mt-1">text-base · font-medium</div>
+          </div>
+          <div>
+            <div class="text-sm">본문 작은 글씨 — 14px Regular</div>
+            <div class="text-[10px] font-mono text-zinc-400 mt-1">text-sm</div>
+          </div>
+          <div>
+            <div class="text-xs text-zinc-500">캡션 — 12px Zinc-500</div>
+            <div class="text-[10px] font-mono text-zinc-400 mt-1">text-xs · text-zinc-500</div>
+          </div>
+        </div>
+        <p>본 앱은 <code>Geist Sans</code> + 한국어 시스템 폰트 fallback. 이 docs는 <code>Pretendard</code>를 사용해 한국어 가독성 우선.</p>
+
+        <h3>컴포넌트</h3>
+        <div class="not-prose mt-3 space-y-4">
+          <!-- Buttons -->
+          <div class="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5">
+            <div class="text-xs font-semibold text-zinc-500 mb-3">Buttons</div>
+            <div class="flex flex-wrap gap-2">
+              <button class="rounded-lg bg-[#3182F6] hover:bg-[#1a6fe8] active:bg-[#1560d4] px-4 py-2.5 text-sm font-semibold text-white transition-colors">Primary</button>
+              <button class="rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 px-4 py-2.5 text-sm font-semibold text-zinc-900 dark:text-zinc-50 transition-colors">Secondary</button>
+              <button class="rounded-lg px-4 py-2.5 text-sm font-medium text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">Ghost</button>
+              <button class="rounded-lg bg-[#3182F6] disabled:opacity-50 px-4 py-2.5 text-sm font-semibold text-white" disabled>Disabled</button>
+            </div>
+          </div>
+
+          <!-- Inputs -->
+          <div class="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5">
+            <div class="text-xs font-semibold text-zinc-500 mb-3">Inputs</div>
+            <div class="space-y-2.5 max-w-sm">
+              <input type="text" placeholder="기본 인풋" class="w-full rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-[#3182F6]" />
+              <input type="text" placeholder="포커스 상태" class="w-full rounded-lg border border-[#3182F6] ring-2 ring-[#3182F6]/20 bg-white dark:bg-zinc-800 px-3 py-2 text-sm" />
+              <input type="text" value="에러 상태" class="w-full rounded-lg border border-red-400 bg-red-50/50 dark:bg-red-900/10 px-3 py-2 text-sm text-red-900 dark:text-red-300" readonly />
+            </div>
+          </div>
+
+          <!-- Cards & Badges -->
+          <div class="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5">
+            <div class="text-xs font-semibold text-zinc-500 mb-3">Cards · Badges</div>
+            <div class="space-y-3">
+              <div class="rounded-2xl shadow-sm border border-zinc-200 dark:border-zinc-800 p-4 max-w-xs bg-white dark:bg-zinc-800">
+                <div class="text-sm font-semibold">카드 (rounded-2xl + shadow-sm)</div>
+                <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">대부분의 컨텐츠 컨테이너</p>
+              </div>
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300 text-[9px] font-bold px-1.5 py-0.5">출시 예정</span>
+                <span class="inline-flex items-center px-2 py-1 rounded-md bg-zinc-100 dark:bg-zinc-800 text-xs font-medium text-zinc-700 dark:text-zinc-300">Tag</span>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-blue-100 dark:bg-blue-900/30 text-[11px] font-medium text-blue-700 dark:text-blue-300">지원함</span>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-green-100 dark:bg-green-900/30 text-[11px] font-medium text-green-700 dark:text-green-300">합격</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <h3>다크 모드</h3>
+        <p><code>localStorage.theme</code>에 <code>system · light · dark</code> 중 하나 저장. paint 전 inline script로 <code>html.dark</code> 클래스 적용해 flicker 방지.</p>
+        <pre class="not-prose mt-3 rounded-lg bg-zinc-900 dark:bg-zinc-800 text-zinc-100 text-xs p-4 overflow-x-auto"><code>// app/layout.tsx
+(function(){try{
+  var s = localStorage.getItem('theme') || 'system';
+  var sysDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  var dark = s === 'dark' || (s === 'system' && sysDark);
+  if (dark) document.documentElement.classList.add('dark');
+}catch(e){}})();</code></pre>
+
+        <h3>아이콘 · 폰트 · 라운드</h3>
+        <ul>
+          <li><strong>아이콘:</strong> <code>lucide-react</code> (16-22px, strokeWidth 1.5-2)</li>
+          <li><strong>UI 폰트:</strong> Geist Sans (라틴) + 시스템 한국어 폰트 fallback</li>
+          <li><strong>코드 폰트:</strong> Geist Mono</li>
+          <li><strong>라운드:</strong> <code>rounded-lg</code>(8px) 인풋·버튼, <code>rounded-2xl</code>(16px) 카드</li>
+          <li><strong>그림자:</strong> <code>shadow-sm</code> · 다크 모드에선 border로 구분</li>
+          <li><strong>줄바꿈:</strong> 한국어 텍스트는 <code>break-keep</code> (word-break: keep-all)</li>
+        </ul>
+      </section>
+
+      <!-- ─────────────────────────────────────── -->
+      <!-- Section 3: User Flows                   -->
+      <!-- ─────────────────────────────────────── -->
+      <section id="user-flows" class="mb-24 prose">
+        <h2 class="text-2xl font-bold tracking-tight mb-2">3. User Flows</h2>
+        <p class="text-sm text-zinc-500 dark:text-zinc-400 !mt-0">핵심 5개 플로우의 분기 다이어그램.</p>
+
+        <h3>3.1 인증 — 회원가입 / 로그인 / 비밀번호 찾기</h3>
+        <pre class="mermaid not-prose">
+flowchart TD
+    A[사이트 진입] --> B{이미 로그인?}
+    B -- 예 --> C[홈으로 이동]
+    B -- 아니오 --> D[로그인 화면]
+    D --> E{모드 선택}
+    E -- 로그인 --> F[이메일+비번 입력]
+    F --> F1{인증 성공?}
+    F1 -- 예 --> C
+    F1 -- 아니오 --> F2[한국어 에러 표시]
+    F2 --> F
+    E -- 회원가입 --> G[가입 절차 안내 박스]
+    G --> H[이메일+비번 입력]
+    H --> H1{이메일 중복?}
+    H1 -- 예 --> H2["에러 + 로그인 화면 가기 버튼"]
+    H1 -- 아니오 --> I[Supabase signUp]
+    I --> J[메일함 확인 화면]
+    J --> K[메일 링크 클릭]
+    K --> L[login으로 복귀, 자동 인증]
+    L --> C
+    E -- 비밀번호 찾기 --> M[forgot-password]
+    M --> N[이메일 입력]
+    N --> O[재설정 링크 발송]
+    O --> P[메일 링크 클릭]
+    P --> Q[reset-password]
+    Q --> R[새 비밀번호 입력]
+    R --> S[login?reset=ok]
+    S --> D
+        </pre>
+        <div class="not-prose mt-3 grid sm:grid-cols-2 gap-2 text-xs text-zinc-500 dark:text-zinc-400">
+          <div class="flex gap-2"><span class="text-[#3182F6]">▶</span> 봇 차단: honeypot 필드(CSS로 숨김)</div>
+          <div class="flex gap-2"><span class="text-[#3182F6]">▶</span> 비밀번호: 8-16자, 대소문자+숫자+특수문자</div>
+          <div class="flex gap-2"><span class="text-[#3182F6]">▶</span> 중복 가입: <code>identities.length === 0</code></div>
+          <div class="flex gap-2"><span class="text-[#3182F6]">▶</span> 에러: 영문 → <code>koreanizeAuthError()</code></div>
+        </div>
+
+        <h3>3.2 온보딩</h3>
+        <pre class="mermaid not-prose">
+flowchart TD
+    A[로그인 완료] --> B{jt_onb 쿠키 일치?}
+    B -- 예 --> C[홈으로 이동]
+    B -- 아니오 --> D[DB profiles.onboarded_at 조회]
+    D --> E{onboarded_at 있음?}
+    E -- 예 --> F[쿠키 발급 후 홈으로]
+    E -- 아니오 --> G[onboarding으로 redirect]
+    G --> H[온보딩 단계 진행]
+    H --> I{사용자 액션}
+    I -- 완료 --> J[onboarded_at = NOW]
+    J --> K[쿠키 발급 후 applications로]
+    I -- 건너뛰기 --> L[onboarded_at = NOW]
+    L --> M[쿠키 발급 후 홈으로]
+        </pre>
+        <div class="not-prose mt-3 grid sm:grid-cols-2 gap-2 text-xs text-zinc-500 dark:text-zinc-400">
+          <div class="flex gap-2"><span class="text-[#3182F6]">▶</span> 캐시 키: <code>jt_onb</code> 쿠키(httpOnly, 1년)</div>
+          <div class="flex gap-2"><span class="text-[#3182F6]">▶</span> 무효화: 로그아웃·다른 유저 진입 시 자동 정리</div>
+          <div class="flex gap-2"><span class="text-[#3182F6]">▶</span> 로그: <code>onboarding_step/complete/skip</code></div>
+          <div class="flex gap-2"><span class="text-[#3182F6]">▶</span> 완료 후 첫 화면: <code>/applications</code> (skip은 <code>/</code>)</div>
+        </div>
+
+        <h3>3.3 지원 추가 → 진행 → 결과</h3>
+        <pre class="mermaid not-prose">
+flowchart LR
+    A[지원현황 화면] --> B[+ 새 지원]
+    B --> C[회사·포지션 입력]
+    C --> D[status: drafting]
+    D --> E{진행}
+    E -- 지원 완료 --> F[status: applied]
+    F --> G[application_event 기록]
+    G --> H{단계 진행}
+    H -- 인적성 --> I[status: aptitude]
+    H -- 1차 면접 --> J[status: interview_1]
+    J --> K[status: interview_2]
+    H -- 합격 --> L[status: offer]
+    H -- 불합격 --> M[status: rejected]
+    K --> L
+    K --> M
+    I --> J
+        </pre>
+        <p class="!text-xs !text-zinc-500 dark:!text-zinc-400 mt-3"><strong>ApplicationStatus 7단계:</strong> <code>drafting · applied · aptitude · interview_1 · interview_2 · offer · rejected</code> · 단계 변경 시 <code>application_events</code>에 타임라인 기록.</p>
+
+        <h3>3.4 캘린더</h3>
+        <pre class="mermaid not-prose">
+flowchart LR
+    A[지원 추가] --> B{일정 있음?}
+    B -- 마감 있음 --> C[deadline 자동 등록]
+    B -- 면접 일정 --> D[interview 수동 등록]
+    D --> E[지원과 연결]
+    A2[캘린더 화면] --> F[월/주 뷰]
+    F --> G{이벤트 클릭}
+    G --> H[상세 모달]
+    H --> I{지원 연결?}
+    I -- 예 --> J[지원 상세로 이동 가능]
+        </pre>
+        <p class="!text-xs !text-zinc-500 dark:!text-zinc-400 mt-3"><strong>이벤트 타입:</strong> <code>interview · deadline · follow_up · other</code> + 사용자 정의(<code>user_event_types</code> 테이블).</p>
+
+        <h3>3.5 자소서 + AI 피드백</h3>
+        <pre class="mermaid not-prose">
+flowchart TD
+    A[자소서 화면] --> B[+ 새 자소서]
+    B --> C[회사명·포지션 입력]
+    C --> D[문항 추가]
+    D --> E[글자수 제한 설정]
+    E --> F[답안 작성]
+    F --> G{글자수 카운트}
+    G --> H[공백 포함/제외 토글]
+    F --> I{AI 피드백 요청}
+    I -.출시 예정.-> J[자소서 첨삭 prompt]
+    J -.-> K[Anthropic SDK 호출]
+    K -.-> L[ai_feedback 저장]
+        </pre>
+        <p class="!text-xs !text-zinc-500 dark:!text-zinc-400 mt-3">AI 피드백(<code>/ai</code>)은 출시 예정. <code>ai_feedback</code> 테이블 + Anthropic SDK 인프라는 이미 준비.</p>
+      </section>
+
+      <!-- ─────────────────────────────────────── -->
+      <!-- Section 4: Conditional UX               -->
+      <!-- ─────────────────────────────────────── -->
+      <section id="conditional-ux" class="mb-24 prose">
+        <h2 class="text-2xl font-bold tracking-tight mb-2">4. 분기 처리</h2>
+        <p class="text-sm text-zinc-500 dark:text-zinc-400 !mt-0">유저 상태별 화면·라우팅 분기. 미들웨어와 컴포넌트 단계 모두 포함.</p>
+
+        <h3>4.1 미들웨어 라우팅 (proxy.ts)</h3>
+        <p>Next.js 16에서 <code>middleware.ts</code> → <code>proxy.ts</code>로 변경. 모든 요청에서 4단계 검사 실행.</p>
+
+        <div class="not-prose overflow-x-auto mt-4">
+          <table class="w-full text-xs border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden">
+            <thead class="bg-zinc-50 dark:bg-zinc-800/50">
+              <tr>
+                <th class="text-left px-3 py-2.5 font-semibold border-b border-zinc-200 dark:border-zinc-800">단계</th>
+                <th class="text-left px-3 py-2.5 font-semibold border-b border-zinc-200 dark:border-zinc-800">조건</th>
+                <th class="text-left px-3 py-2.5 font-semibold border-b border-zinc-200 dark:border-zinc-800">결과</th>
+              </tr>
+            </thead>
+            <tbody class="text-zinc-700 dark:text-zinc-300">
+              <tr class="border-b border-zinc-100 dark:border-zinc-800/50">
+                <td class="px-3 py-2.5 align-top whitespace-nowrap">1. 미인증</td>
+                <td class="px-3 py-2.5 align-top">user 없음 + 비공개 경로</td>
+                <td class="px-3 py-2.5 align-top">→ <code>/login</code> redirect (<code>jt_onb</code> 쿠키 정리)</td>
+              </tr>
+              <tr class="border-b border-zinc-100 dark:border-zinc-800/50">
+                <td class="px-3 py-2.5 align-top whitespace-nowrap">2. 로그인 페이지 우회</td>
+                <td class="px-3 py-2.5 align-top">user 있음 + <code>/login</code> 진입</td>
+                <td class="px-3 py-2.5 align-top">→ <code>/</code> redirect</td>
+              </tr>
+              <tr class="border-b border-zinc-100 dark:border-zinc-800/50">
+                <td class="px-3 py-2.5 align-top whitespace-nowrap">3. 온보딩 게이트</td>
+                <td class="px-3 py-2.5 align-top">쿠키 없음 + DB <code>onboarded_at</code> NULL</td>
+                <td class="px-3 py-2.5 align-top">→ <code>/onboarding</code> redirect</td>
+              </tr>
+              <tr>
+                <td class="px-3 py-2.5 align-top whitespace-nowrap">4. 온보딩 완료자 진입</td>
+                <td class="px-3 py-2.5 align-top">완료한 유저가 <code>/onboarding</code> 진입</td>
+                <td class="px-3 py-2.5 align-top">→ <code>/</code> redirect</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="mt-4"><strong>예외 (proxy 통과)</strong>: <code>/api/*</code>, 정적 자산(<code>_next/*</code>, <code>*.svg</code>, <code>*.png</code>, <code>sitemap.xml</code>, <code>robots.txt</code>, <code>manifest.webmanifest</code>) — manifest는 redirect되면 PWA 아이콘이 fallback돼서 명시적 제외.</p>
+
+        <h3>4.2 사이드바 노출</h3>
+        <p>아래 경로에서는 사이드바 숨김 (<code>LayoutWrapper</code>):</p>
+        <ul>
+          <li><code>/login</code>, <code>/forgot-password</code>, <code>/reset-password</code> — 인증 페이지</li>
+          <li><code>/onboarding</code> — 집중 흐름</li>
+          <li><code>/admin</code> — 별도 레이아웃 (관리자 헤더)</li>
+          <li><code>/terms</code>, <code>/privacy</code> — 약관 (외부 deep link 접근)</li>
+        </ul>
+
+        <h3>4.3 ApplicationStatus 분기</h3>
+        <p>지원 카드의 색상·라벨이 <code>status</code>에 따라 변함.</p>
+
+        <div class="not-prose mt-4 overflow-x-auto">
+          <table class="w-full text-xs border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden">
+            <thead class="bg-zinc-50 dark:bg-zinc-800/50">
+              <tr>
+                <th class="text-left px-3 py-2.5 font-semibold border-b border-zinc-200 dark:border-zinc-800">Status</th>
+                <th class="text-left px-3 py-2.5 font-semibold border-b border-zinc-200 dark:border-zinc-800">의미</th>
+                <th class="text-left px-3 py-2.5 font-semibold border-b border-zinc-200 dark:border-zinc-800">표시</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="border-b border-zinc-100 dark:border-zinc-800/50"><td class="px-3 py-2.5 font-mono text-zinc-700 dark:text-zinc-300">drafting</td><td class="px-3 py-2.5 text-zinc-700 dark:text-zinc-300">작성 중 (지원서)</td><td class="px-3 py-2.5"><span class="rounded-md bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 text-zinc-700 dark:text-zinc-300 text-[11px] font-medium">초안</span></td></tr>
+              <tr class="border-b border-zinc-100 dark:border-zinc-800/50"><td class="px-3 py-2.5 font-mono text-zinc-700 dark:text-zinc-300">applied</td><td class="px-3 py-2.5 text-zinc-700 dark:text-zinc-300">제출 완료</td><td class="px-3 py-2.5"><span class="rounded-md bg-blue-100 dark:bg-blue-900/30 px-2 py-0.5 text-blue-700 dark:text-blue-300 text-[11px] font-medium">지원함</span></td></tr>
+              <tr class="border-b border-zinc-100 dark:border-zinc-800/50"><td class="px-3 py-2.5 font-mono text-zinc-700 dark:text-zinc-300">aptitude</td><td class="px-3 py-2.5 text-zinc-700 dark:text-zinc-300">인적성 검사</td><td class="px-3 py-2.5"><span class="rounded-md bg-purple-100 dark:bg-purple-900/30 px-2 py-0.5 text-purple-700 dark:text-purple-300 text-[11px] font-medium">인적성</span></td></tr>
+              <tr class="border-b border-zinc-100 dark:border-zinc-800/50"><td class="px-3 py-2.5 font-mono text-zinc-700 dark:text-zinc-300">interview_1</td><td class="px-3 py-2.5 text-zinc-700 dark:text-zinc-300">1차 면접</td><td class="px-3 py-2.5"><span class="rounded-md bg-indigo-100 dark:bg-indigo-900/30 px-2 py-0.5 text-indigo-700 dark:text-indigo-300 text-[11px] font-medium">1차 면접</span></td></tr>
+              <tr class="border-b border-zinc-100 dark:border-zinc-800/50"><td class="px-3 py-2.5 font-mono text-zinc-700 dark:text-zinc-300">interview_2</td><td class="px-3 py-2.5 text-zinc-700 dark:text-zinc-300">2차 면접 / 임원</td><td class="px-3 py-2.5"><span class="rounded-md bg-violet-100 dark:bg-violet-900/30 px-2 py-0.5 text-violet-700 dark:text-violet-300 text-[11px] font-medium">2차 면접</span></td></tr>
+              <tr class="border-b border-zinc-100 dark:border-zinc-800/50"><td class="px-3 py-2.5 font-mono text-zinc-700 dark:text-zinc-300">offer</td><td class="px-3 py-2.5 text-zinc-700 dark:text-zinc-300">합격</td><td class="px-3 py-2.5"><span class="rounded-md bg-green-100 dark:bg-green-900/30 px-2 py-0.5 text-green-700 dark:text-green-300 text-[11px] font-medium">합격</span></td></tr>
+              <tr><td class="px-3 py-2.5 font-mono text-zinc-700 dark:text-zinc-300">rejected</td><td class="px-3 py-2.5 text-zinc-700 dark:text-zinc-300">불합격</td><td class="px-3 py-2.5"><span class="rounded-md bg-red-100 dark:bg-red-900/30 px-2 py-0.5 text-red-700 dark:text-red-300 text-[11px] font-medium">불합격</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>4.4 회원가입 화면 내부 분기</h3>
+        <p>단일 페이지에서 모드(login/signup)·결과 상태에 따라 4가지 뷰가 나옴:</p>
+        <ul>
+          <li><strong>로그인 폼</strong> — 기본</li>
+          <li><strong>회원가입 폼</strong> — 가입 절차 안내 + 비밀번호 강도 + honeypot</li>
+          <li><strong>"메일함 확인" 화면</strong> — 가입 후 폼이 사라지고 등장. 입력한 이메일을 굵게 표시</li>
+          <li><strong>"비밀번호 재설정 완료" 배너</strong> — <code>/login?reset=ok</code> 진입 시</li>
+        </ul>
+
+        <h3>4.5 비밀번호 정책 분기</h3>
+        <p>실시간으로 5개 규칙 통과 여부 체크. 실패 시 한국어 에러:</p>
+        <pre class="not-prose mt-3 rounded-lg bg-zinc-900 dark:bg-zinc-800 text-zinc-100 text-xs p-4 overflow-x-auto"><code>{ id: "length",  test: p.length >= 8 && p.length <= 16 }
+{ id: "lower",   test: /[a-z]/.test(p) }
+{ id: "upper",   test: /[A-Z]/.test(p) }
+{ id: "digit",   test: /[0-9]/.test(p) }
+{ id: "special", test: /[^A-Za-z0-9]/.test(p) }</code></pre>
+      </section>
+
+      <!-- ─────────────────────────────────────── -->
+      <!-- Section 5: Tech Stack                   -->
+      <!-- ─────────────────────────────────────── -->
+      <section id="tech-stack" class="mb-24 prose">
+        <h2 class="text-2xl font-bold tracking-tight mb-2">5. Tech Stack</h2>
+        <p class="text-sm text-zinc-500 dark:text-zinc-400 !mt-0">사용 중인 라이브러리와 패턴.</p>
+
+        <div class="not-prose mt-5 grid sm:grid-cols-2 gap-3">
+          <div class="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
+            <div class="text-[10px] font-bold tracking-wider text-[#3182F6] uppercase mb-1">Framework</div>
+            <div class="text-sm font-semibold">Next.js 16</div>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">App Router · Server Actions · React 19</p>
+            <p class="text-[11px] text-amber-600 dark:text-amber-400 mt-1.5">⚠️ <code class="text-[11px]">middleware.ts</code> → <code class="text-[11px]">proxy.ts</code> breaking change</p>
+          </div>
+          <div class="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
+            <div class="text-[10px] font-bold tracking-wider text-[#3182F6] uppercase mb-1">Backend</div>
+            <div class="text-sm font-semibold">Supabase</div>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Auth · Postgres · RLS · Storage</p>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1"><code class="text-[11px]">@supabase/auth-helpers-nextjs</code></p>
+          </div>
+          <div class="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
+            <div class="text-[10px] font-bold tracking-wider text-[#3182F6] uppercase mb-1">Styling</div>
+            <div class="text-sm font-semibold">Tailwind CSS v4</div>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">PostCSS plugin · Dark mode (class)</p>
+          </div>
+          <div class="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
+            <div class="text-[10px] font-bold tracking-wider text-[#3182F6] uppercase mb-1">UI</div>
+            <div class="text-sm font-semibold">React 19</div>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1"><code class="text-[11px]">useActionState</code> · Server Components</p>
+          </div>
+          <div class="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
+            <div class="text-[10px] font-bold tracking-wider text-[#3182F6] uppercase mb-1">AI</div>
+            <div class="text-sm font-semibold">Anthropic SDK</div>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Claude API · 자소서 첨삭 (출시 예정)</p>
+          </div>
+          <div class="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
+            <div class="text-[10px] font-bold tracking-wider text-[#3182F6] uppercase mb-1">차트</div>
+            <div class="text-sm font-semibold">Recharts</div>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">대시보드 통계</p>
+          </div>
+          <div class="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
+            <div class="text-[10px] font-bold tracking-wider text-[#3182F6] uppercase mb-1">DnD</div>
+            <div class="text-sm font-semibold">@dnd-kit</div>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">자소서 문항 reorder</p>
+          </div>
+          <div class="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
+            <div class="text-[10px] font-bold tracking-wider text-[#3182F6] uppercase mb-1">아이콘</div>
+            <div class="text-sm font-semibold">lucide-react</div>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">트리쉐이킹 친화적</p>
+          </div>
+          <div class="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
+            <div class="text-[10px] font-bold tracking-wider text-[#3182F6] uppercase mb-1">Markdown</div>
+            <div class="text-sm font-semibold">react-markdown</div>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">AI 응답·자소서 렌더링</p>
+          </div>
+          <div class="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
+            <div class="text-[10px] font-bold tracking-wider text-[#3182F6] uppercase mb-1">Type</div>
+            <div class="text-sm font-semibold">TypeScript 5</div>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">DB 타입은 <code class="text-[11px]">types/database.ts</code></p>
+          </div>
+        </div>
+
+        <h3>아키텍처 패턴</h3>
+        <ul>
+          <li><strong>Server Actions</strong> — 인증·온보딩·설정 등 폼 제출은 모두 server action으로 처리</li>
+          <li><strong>RLS</strong> — 모든 테이블 <code>auth.uid() = user_id</code> 정책. 클라이언트가 다른 사람 데이터 접근 불가</li>
+          <li><strong>Anon key only on client</strong> — 서비스 키는 <code>lib/supabase-admin.ts</code>에만 (관리자용)</li>
+          <li><strong>Proxy 캐시</strong> — 온보딩 상태를 <code>jt_onb</code> 쿠키로 캐시해 매 요청 DB 조회 회피</li>
+          <li><strong>Logger</strong> — <code>lib/logger.ts</code>가 <code>usage_logs</code>에 이벤트 기록</li>
+          <li><strong>Rate limit</strong> — <code>lib/rate-limit.ts</code> (인메모리, AI 호출 등에 사용 가능)</li>
+        </ul>
+      </section>
+
+      <!-- ─────────────────────────────────────── -->
+      <!-- Section 6: DB Schema                    -->
+      <!-- ─────────────────────────────────────── -->
+      <section id="db-schema" class="mb-24 prose">
+        <h2 class="text-2xl font-bold tracking-tight mb-2">6. DB Schema</h2>
+        <p class="text-sm text-zinc-500 dark:text-zinc-400 !mt-0">Supabase Postgres · 13개 테이블 · 모두 RLS 적용.</p>
+
+        <h3>테이블 일람</h3>
+        <div class="not-prose mt-4 overflow-x-auto">
+          <table class="w-full text-xs border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden">
+            <thead class="bg-zinc-50 dark:bg-zinc-800/50">
+              <tr>
+                <th class="text-left px-3 py-2.5 font-semibold border-b border-zinc-200 dark:border-zinc-800">테이블</th>
+                <th class="text-left px-3 py-2.5 font-semibold border-b border-zinc-200 dark:border-zinc-800">설명</th>
+                <th class="text-left px-3 py-2.5 font-semibold border-b border-zinc-200 dark:border-zinc-800">주요 컬럼</th>
+              </tr>
+            </thead>
+            <tbody class="text-zinc-700 dark:text-zinc-300">
+              <tr class="border-b border-zinc-100 dark:border-zinc-800/50"><td class="px-3 py-2.5 font-mono whitespace-nowrap">profiles</td><td class="px-3 py-2.5">유저 프로필 + 온보딩</td><td class="px-3 py-2.5 font-mono text-[10px] text-zinc-500">user_id, onboarded_at</td></tr>
+              <tr class="border-b border-zinc-100 dark:border-zinc-800/50"><td class="px-3 py-2.5 font-mono whitespace-nowrap">companies</td><td class="px-3 py-2.5">지원 회사</td><td class="px-3 py-2.5 font-mono text-[10px] text-zinc-500">name, website, industry, notes</td></tr>
+              <tr class="border-b border-zinc-100 dark:border-zinc-800/50"><td class="px-3 py-2.5 font-mono whitespace-nowrap">job_applications</td><td class="px-3 py-2.5">지원 (포지션 단위)</td><td class="px-3 py-2.5 font-mono text-[10px] text-zinc-500">position, status, applied_at, deadline</td></tr>
+              <tr class="border-b border-zinc-100 dark:border-zinc-800/50"><td class="px-3 py-2.5 font-mono whitespace-nowrap">application_events</td><td class="px-3 py-2.5">지원 타임라인</td><td class="px-3 py-2.5 font-mono text-[10px] text-zinc-500">event_type, title, scheduled_at</td></tr>
+              <tr class="border-b border-zinc-100 dark:border-zinc-800/50"><td class="px-3 py-2.5 font-mono whitespace-nowrap">documents</td><td class="px-3 py-2.5">이력서·포트폴리오</td><td class="px-3 py-2.5 font-mono text-[10px] text-zinc-500">type, title, content, file_url, folder_id</td></tr>
+              <tr class="border-b border-zinc-100 dark:border-zinc-800/50"><td class="px-3 py-2.5 font-mono whitespace-nowrap">folders</td><td class="px-3 py-2.5">문서 폴더</td><td class="px-3 py-2.5 font-mono text-[10px] text-zinc-500">name, emoji, color</td></tr>
+              <tr class="border-b border-zinc-100 dark:border-zinc-800/50"><td class="px-3 py-2.5 font-mono whitespace-nowrap">application_documents</td><td class="px-3 py-2.5">지원 ↔ 문서 연결</td><td class="px-3 py-2.5 font-mono text-[10px] text-zinc-500">application_id, document_id</td></tr>
+              <tr class="border-b border-zinc-100 dark:border-zinc-800/50"><td class="px-3 py-2.5 font-mono whitespace-nowrap">essays</td><td class="px-3 py-2.5">자기소개서 (회사 단위)</td><td class="px-3 py-2.5 font-mono text-[10px] text-zinc-500">company_name, job_title, deadline</td></tr>
+              <tr class="border-b border-zinc-100 dark:border-zinc-800/50"><td class="px-3 py-2.5 font-mono whitespace-nowrap">essay_questions</td><td class="px-3 py-2.5">자소서 문항</td><td class="px-3 py-2.5 font-mono text-[10px] text-zinc-500">order, content, answer, char_limit, count_mode</td></tr>
+              <tr class="border-b border-zinc-100 dark:border-zinc-800/50"><td class="px-3 py-2.5 font-mono whitespace-nowrap">calendar_events</td><td class="px-3 py-2.5">캘린더 이벤트</td><td class="px-3 py-2.5 font-mono text-[10px] text-zinc-500">event_type, starts_at, meeting_url</td></tr>
+              <tr class="border-b border-zinc-100 dark:border-zinc-800/50"><td class="px-3 py-2.5 font-mono whitespace-nowrap">user_event_types</td><td class="px-3 py-2.5">사용자 이벤트 색상</td><td class="px-3 py-2.5 font-mono text-[10px] text-zinc-500">name, color</td></tr>
+              <tr class="border-b border-zinc-100 dark:border-zinc-800/50"><td class="px-3 py-2.5 font-mono whitespace-nowrap">ai_feedback</td><td class="px-3 py-2.5">AI 피드백 결과</td><td class="px-3 py-2.5 font-mono text-[10px] text-zinc-500">feedback_type, prompt, response, model</td></tr>
+              <tr><td class="px-3 py-2.5 font-mono whitespace-nowrap">usage_logs</td><td class="px-3 py-2.5">사용 분석 로그</td><td class="px-3 py-2.5 font-mono text-[10px] text-zinc-500">event, props (JSONB)</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>관계도 (핵심)</h3>
+        <pre class="mermaid not-prose">
+erDiagram
+    auth_users ||--|| profiles : has
+    auth_users ||--o{ companies : owns
+    auth_users ||--o{ job_applications : owns
+    companies ||--o{ job_applications : "applied to"
+    job_applications ||--o{ application_events : "has events"
+    job_applications ||--o{ calendar_events : scheduled
+    job_applications }o--o{ documents : "via app_documents"
+    auth_users ||--o{ documents : owns
+    folders ||--o{ documents : contains
+    auth_users ||--o{ essays : owns
+    essays ||--o{ essay_questions : has
+    auth_users ||--o{ ai_feedback : owns
+    auth_users ||--o{ usage_logs : generates
+        </pre>
+
+        <h3>RLS 정책</h3>
+        <p>모든 사용자 데이터 테이블은 동일한 패턴:</p>
+        <pre class="not-prose mt-3 rounded-lg bg-zinc-900 dark:bg-zinc-800 text-zinc-100 text-xs p-4 overflow-x-auto"><code>ALTER TABLE companies ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "users can manage own companies"
+  ON companies FOR ALL USING (auth.uid() = user_id);</code></pre>
+        <p><code>application_events</code>처럼 간접 소유는 <code>EXISTS</code> 서브쿼리로 검증.</p>
+
+        <h3>인덱스 · 트리거</h3>
+        <ul>
+          <li><code>user_id</code>는 거의 모든 테이블에 인덱스 (RLS 필터 성능)</li>
+          <li><code>job_applications.status</code>, <code>calendar_events.starts_at</code>도 인덱스</li>
+          <li><code>updated_at</code>은 <code>update_updated_at()</code> 트리거로 자동 갱신</li>
+        </ul>
+      </section>
+
+      <!-- ─────────────────────────────────────── -->
+      <!-- Section 7: Deploy & Environment         -->
+      <!-- ─────────────────────────────────────── -->
+      <section id="deploy" class="mb-24 prose">
+        <h2 class="text-2xl font-bold tracking-tight mb-2">7. 배포 & 환경</h2>
+        <p class="text-sm text-zinc-500 dark:text-zinc-400 !mt-0">Vercel + Supabase + 보안 헤더.</p>
+
+        <h3>호스팅</h3>
+        <ul>
+          <li><strong>호스팅:</strong> Vercel · 리전 <code>icn1</code> (서울) — 한국 유저 latency 최소</li>
+          <li><strong>도메인:</strong> <code>job-kappa-coral.vercel.app</code> (커스텀 도메인 미지정)</li>
+          <li><strong>CI/CD:</strong> <code>main</code> 브랜치 push → 자동 production deploy. PR → preview deploy</li>
+          <li><strong>이미지:</strong> Next.js Image 미사용 (PWA 아이콘은 정적 파일)</li>
+        </ul>
+
+        <h3>환경변수</h3>
+        <div class="not-prose mt-4 overflow-x-auto">
+          <table class="w-full text-xs border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden">
+            <thead class="bg-zinc-50 dark:bg-zinc-800/50">
+              <tr>
+                <th class="text-left px-3 py-2.5 font-semibold border-b border-zinc-200 dark:border-zinc-800">변수</th>
+                <th class="text-left px-3 py-2.5 font-semibold border-b border-zinc-200 dark:border-zinc-800">노출</th>
+                <th class="text-left px-3 py-2.5 font-semibold border-b border-zinc-200 dark:border-zinc-800">용도</th>
+              </tr>
+            </thead>
+            <tbody class="font-mono text-[11px] text-zinc-700 dark:text-zinc-300">
+              <tr class="border-b border-zinc-100 dark:border-zinc-800/50"><td class="px-3 py-2.5">NEXT_PUBLIC_SUPABASE_URL</td><td class="px-3 py-2.5"><span class="text-amber-600 dark:text-amber-400">public</span></td><td class="px-3 py-2.5 font-sans">Supabase 프로젝트 URL</td></tr>
+              <tr class="border-b border-zinc-100 dark:border-zinc-800/50"><td class="px-3 py-2.5">NEXT_PUBLIC_SUPABASE_ANON_KEY</td><td class="px-3 py-2.5"><span class="text-amber-600 dark:text-amber-400">public</span></td><td class="px-3 py-2.5 font-sans">Anon key (RLS로 권한 제어)</td></tr>
+              <tr class="border-b border-zinc-100 dark:border-zinc-800/50"><td class="px-3 py-2.5">NEXT_PUBLIC_APP_URL</td><td class="px-3 py-2.5"><span class="text-amber-600 dark:text-amber-400">public</span></td><td class="px-3 py-2.5 font-sans">메일 redirect URL 베이스</td></tr>
+              <tr class="border-b border-zinc-100 dark:border-zinc-800/50"><td class="px-3 py-2.5">SUPABASE_SERVICE_ROLE_KEY</td><td class="px-3 py-2.5"><span class="text-red-600 dark:text-red-400">secret</span></td><td class="px-3 py-2.5 font-sans">관리자 작업용 (RLS 우회)</td></tr>
+              <tr><td class="px-3 py-2.5">ANTHROPIC_API_KEY</td><td class="px-3 py-2.5"><span class="text-red-600 dark:text-red-400">secret</span></td><td class="px-3 py-2.5 font-sans">Claude API (AI 피드백)</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>보안 헤더 (vercel.json)</h3>
+        <div class="not-prose mt-4 grid sm:grid-cols-2 gap-2 text-xs">
+          <div class="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-3">
+            <div class="font-mono font-semibold text-zinc-900 dark:text-zinc-50">X-Frame-Options</div>
+            <div class="text-zinc-500 dark:text-zinc-400 mt-0.5">SAMEORIGIN — clickjacking 방지</div>
+          </div>
+          <div class="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-3">
+            <div class="font-mono font-semibold text-zinc-900 dark:text-zinc-50">X-Content-Type-Options</div>
+            <div class="text-zinc-500 dark:text-zinc-400 mt-0.5">nosniff — MIME 추측 차단</div>
+          </div>
+          <div class="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-3">
+            <div class="font-mono font-semibold text-zinc-900 dark:text-zinc-50">Referrer-Policy</div>
+            <div class="text-zinc-500 dark:text-zinc-400 mt-0.5">strict-origin-when-cross-origin</div>
+          </div>
+          <div class="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-3">
+            <div class="font-mono font-semibold text-zinc-900 dark:text-zinc-50">Permissions-Policy</div>
+            <div class="text-zinc-500 dark:text-zinc-400 mt-0.5">카메라·마이크·위치·결제 모두 차단</div>
+          </div>
+          <div class="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-3">
+            <div class="font-mono font-semibold text-zinc-900 dark:text-zinc-50">Strict-Transport-Security</div>
+            <div class="text-zinc-500 dark:text-zinc-400 mt-0.5">max-age=1년 + preload</div>
+          </div>
+          <div class="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-3">
+            <div class="font-mono font-semibold text-zinc-900 dark:text-zinc-50">Cache-Control</div>
+            <div class="text-zinc-500 dark:text-zinc-400 mt-0.5"><code class="text-[11px]">/api/*</code>: no-store · 아이콘: 1h</div>
+          </div>
+        </div>
+
+        <h3>SEO · PWA</h3>
+        <ul>
+          <li><strong>SEO:</strong> Google + Naver 검증 ID (verification meta), <code>sitemap.ts</code>, <code>robots.txt</code></li>
+          <li><strong>OpenGraph:</strong> <code>ko_KR</code> locale, 정적 메타</li>
+          <li><strong>PWA:</strong> <code>manifest.webmanifest</code>, 192/512 아이콘, apple-touch-icon</li>
+          <li><strong>Theme color:</strong> <code>#3182F6</code> (브라우저 chrome 색)</li>
+        </ul>
+
+        <h3>레포 (커리업 관련 GitHub)</h3>
+        <div class="not-prose mt-4 grid sm:grid-cols-2 gap-3">
+          <a href="https://github.com/todaycottonis-wq/job" target="_blank" rel="noopener" class="block rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4 hover:border-[#3182F6] transition-colors">
+            <div class="text-[10px] font-bold text-[#3182F6] uppercase tracking-wider mb-1">메인 앱</div>
+            <div class="text-sm font-mono text-zinc-900 dark:text-zinc-50">todaycottonis-wq/job</div>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Next.js · 본 docs도 여기 <code class="text-[10px]">docs/</code>에 위치</p>
+          </a>
+          <a href="https://github.com/todaycottonis-wq/jobtrack-landing" target="_blank" rel="noopener" class="block rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4 hover:border-[#3182F6] transition-colors">
+            <div class="text-[10px] font-bold text-[#3182F6] uppercase tracking-wider mb-1">랜딩</div>
+            <div class="text-sm font-mono text-zinc-900 dark:text-zinc-50">todaycottonis-wq/jobtrack-landing</div>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">정적 HTML · 마케팅 페이지 단일 파일</p>
+          </a>
+        </div>
+      </section>
+
+      <!-- Footer -->
+      <footer class="mt-24 pt-8 border-t border-zinc-200 dark:border-zinc-800 text-xs text-zinc-500 dark:text-zinc-400">
+        <p>커리업 (Career up) · Spec & Flow Documentation</p>
+        <p class="mt-1">코드와 함께 git 관리되어 변경 시 같이 업데이트 — <code class="text-[11px]">docs/index.html</code></p>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Mermaid (theme-aware init) -->
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    const dark = document.documentElement.classList.contains('dark');
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: dark ? 'dark' : 'default',
+      securityLevel: 'loose',
+      themeVariables: {
+        primaryColor: '#3182F6',
+        primaryTextColor: dark ? '#fafafa' : '#18181b',
+        primaryBorderColor: '#3182F6',
+        lineColor: dark ? '#71717a' : '#a1a1aa',
+        secondaryColor: dark ? '#27272a' : '#fafafa',
+        tertiaryColor: dark ? '#18181b' : '#ffffff',
+      },
+    });
+  </script>
+
+  <!-- Theme toggle + scroll spy -->
+  <script>
+    (function () {
+      const themeBtn = document.getElementById('theme-toggle');
+      const themeLabel = document.getElementById('theme-label');
+      const labels = { system: '테마: 시스템', light: '테마: 라이트', dark: '테마: 다크' };
+
+      function getTheme() {
+        try { return localStorage.getItem('docs-theme') || 'system'; } catch (e) { return 'system'; }
+      }
+      function applyDark(t) {
+        const sysDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const dark = t === 'dark' || (t === 'system' && sysDark);
+        document.documentElement.classList.toggle('dark', dark);
+        themeLabel.textContent = labels[t];
+      }
+      themeBtn.addEventListener('click', () => {
+        const cur = getTheme();
+        const next = cur === 'system' ? 'light' : cur === 'light' ? 'dark' : 'system';
+        try { localStorage.setItem('docs-theme', next); } catch (e) {}
+        applyDark(next);
+        // Mermaid는 page reload 시 새 테마 반영 — 변경 직후엔 그대로
+      });
+      applyDark(getTheme());
+
+      // Scroll spy
+      const sections = document.querySelectorAll('section[id]');
+      const navLinks = document.querySelectorAll('#sidebar-nav a');
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const id = entry.target.id;
+            navLinks.forEach(link => {
+              link.classList.toggle('active', link.getAttribute('href') === '#' + id);
+            });
+          }
+        });
+      }, { rootMargin: '-30% 0px -55% 0px', threshold: 0 });
+      sections.forEach(s => observer.observe(s));
+    })();
+  </script>
+</body>
+</html>
