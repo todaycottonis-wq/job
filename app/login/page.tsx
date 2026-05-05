@@ -71,7 +71,7 @@ function LoginContent() {
         {!isLogin && (
           <div className="rounded-lg bg-blue-50/70 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/40 px-3.5 py-3 text-xs text-blue-800 dark:text-blue-300 flex gap-2.5">
             <Info size={14} className="mt-0.5 shrink-0" aria-hidden="true" />
-            <div className="leading-relaxed">
+            <div className="leading-relaxed break-keep">
               <p className="font-semibold">이메일 인증으로 가입이 완료돼요</p>
               <p className="mt-0.5 text-blue-700/90 dark:text-blue-300/90">
                 ① 이메일·비밀번호 입력 → ② 받은 메일의 링크 클릭 → ③ 가입 완료
@@ -234,7 +234,7 @@ function CheckEmailScreen({ email }: { email: string }) {
           <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
             메일함을 확인해주세요
           </h1>
-          <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300 leading-relaxed">
+          <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300 leading-relaxed break-keep">
             {email ? (
               <>
                 <span className="font-semibold text-zinc-900 dark:text-zinc-50">
@@ -249,7 +249,7 @@ function CheckEmailScreen({ email }: { email: string }) {
           </p>
         </div>
 
-        <div className="rounded-lg bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800 px-4 py-3 space-y-2 text-xs text-zinc-600 dark:text-zinc-300 leading-relaxed">
+        <div className="rounded-lg bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800 px-4 py-3 space-y-2 text-xs text-zinc-600 dark:text-zinc-300 leading-relaxed break-keep">
           <p>
             <span aria-hidden="true">⏱️ </span>
             보통 1~2분 안에 도착해요. 안 보이면{" "}
