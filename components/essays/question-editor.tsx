@@ -156,9 +156,13 @@ export function QuestionEditor({
 
   async function handleDelete() {
     if (!confirm("이 문항을 삭제할까요?")) return;
-    await fetch(`/api/essays/${essayId}/questions/${questionId}`, {
+    const res = await fetch(`/api/essays/${essayId}/questions/${questionId}`, {
       method: "DELETE",
     });
+    if (!res.ok) {
+      toast.show("삭제에 실패했어요", { variant: "error" });
+      return;
+    }
     toast.show("문항을 삭제했어요", { variant: "success" });
     router.push(`/essays/${essayId}`);
   }

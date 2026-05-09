@@ -50,7 +50,11 @@ export function EssayList() {
 
   async function handleDelete(item: EssayListItem) {
     if (!confirm(`'${item.company_name}' 자소서를 삭제할까요? 모든 문항도 같이 사라져요.`)) return;
-    await fetch(`/api/essays/${item.id}`, { method: "DELETE" });
+    const res = await fetch(`/api/essays/${item.id}`, { method: "DELETE" });
+    if (!res.ok) {
+      toast.show("삭제에 실패했어요", { variant: "error" });
+      return;
+    }
     setEssays((prev) => prev.filter((e) => e.id !== item.id));
     toast.show("삭제했어요", { variant: "success" });
   }

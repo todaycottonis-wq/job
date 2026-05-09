@@ -114,7 +114,30 @@ export default function ApplicationsPage() {
   async function handleDelete(app: ApplicationRow) {
     setDeletingId(app.id);
     try {
-      await fetch(`/api/applications/${app.id}`, { method: "DELETE" });
+      // 삭제 전에 연결된 문서 ID들 캡처 (undo 복원용)
+      let linkedDocIds: string[] = [];
+      try {
+        const docsRes = await fetch(`/api/applications/${app.id}/documents`);
+        if (docsRes.ok) {
+          const docsJson = await docsRes.json();
+          linkedDocIds = (docsJson.data ?? []).map(
+            (r: { document_id: string }) => r.document_id
+          );
+        }
+      } catch {
+        /* 문서 조회 실패해도 삭제는 진행 */
+      }
+
+      const delRes = await fetch(`/api/applications/${app.id}`, {
+        method: "DELETE",
+      });
+      if (!delRes.ok) {
+        toast.show("삭제에 실패했어요. 잠시 후 다시 시도해주세요.", {
+          variant: "error",
+        });
+        return;
+      }
+
       setApplications((prev) => prev.filter((a) => a.id !== app.id));
       toast.show(`'${app.company_name}' 지원을 삭제했어요`, {
         variant: "success",
@@ -136,11 +159,37 @@ export default function ApplicationsPage() {
               notes: app.notes,
             }),
           });
-          if (res.ok) {
-            const json = await res.json();
-            setApplications((prev) => [json.data as ApplicationRow, ...prev]);
-            toast.show("복구했어요", { variant: "success", duration: 2500 });
+          if (!res.ok) {
+            toast.show("복구에 실패했어요", { variant: "error" });
+            return;
           }
+          const json = await res.json();
+          const restored = json.data as ApplicationRow;
+          setApplications((prev) => [restored, ...prev]);
+
+          // 연결돼 있던 문서들도 복원
+          if (linkedDocIds.length > 0) {
+            try {
+              await fetch(`/api/applications/${restored.id}/documents`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ document_ids: linkedDocIds }),
+              });
+              // 화면의 문서 알약도 갱신
+              setAppDocsMap((prev) => ({
+                ...prev,
+                [restored.id]: linkedDocIds.flatMap((docId) => {
+                  const orig = (appDocsMap[app.id] ?? []).find(
+                    (d) => d.id === docId
+                  );
+                  return orig ? [orig] : [];
+                }),
+              }));
+            } catch {
+              /* 문서 재연결 실패는 별도 toast 안 띄움 — 본 복구는 됐음 */
+            }
+          }
+          toast.show("복구했어요", { variant: "success", duration: 2500 });
         },
       });
     } finally {

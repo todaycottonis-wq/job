@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase-server";
 import { logEvent } from "@/lib/logger";
 import type {
@@ -152,6 +153,9 @@ async function insertApplication(
     application_id: row.id,
     status: row.status,
   }, userId);
+
+  // 대시보드 카운트/최근 지원 캐시 무효화
+  revalidatePath("/");
 
   return Response.json(
     { data: row } satisfies ApplicationResponse,

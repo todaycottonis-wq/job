@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { X, FileText, NotebookText } from "lucide-react";
+import { useToast } from "@/components/ui/toast";
 import type {
   ApplicationRow,
   ApplicationFormData,
@@ -43,6 +44,7 @@ export function ApplicationForm({
   onSuccess,
   onClose,
 }: ApplicationFormProps) {
+  const toast = useToast();
   const [form, setForm] = useState<ApplicationFormData>(
     initial
       ? {
@@ -131,19 +133,31 @@ export function ApplicationForm({
       }
       const created = json.data as ApplicationRow;
 
-      // 연결 문서 저장
+      // 연결 문서 저장 — 실패 시 본 저장은 성공이지만 사용자에게 알려야 함
+      let docLinkFailed = false;
       try {
-        await fetch(`/api/applications/${created.id}/documents`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            document_ids: Array.from(selectedDocIds),
-          }),
-        });
+        const docRes = await fetch(
+          `/api/applications/${created.id}/documents`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              document_ids: Array.from(selectedDocIds),
+            }),
+          }
+        );
+        if (!docRes.ok) docLinkFailed = true;
       } catch {
-        /* 문서 연결 실패는 본 저장과 분리 — 무시 */
+        docLinkFailed = true;
       }
 
+      if (docLinkFailed && selectedDocIds.size > 0) {
+        // onSuccess가 모달을 닫아버려서 setError는 안 보임 → toast로
+        toast.show("저장은 됐지만 문서 연결에 실패했어요. 다시 편집해서 문서를 연결해주세요.", {
+          variant: "error",
+          duration: 5000,
+        });
+      }
       onSuccess(created);
     } catch {
       setError("네트워크 오류가 발생했습니다.");

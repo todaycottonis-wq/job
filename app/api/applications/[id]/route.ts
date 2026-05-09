@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase-server";
 import { logEvent } from "@/lib/logger";
 import type {
@@ -125,6 +126,9 @@ export async function PATCH(
     status: row.status,
   }, user.id);
 
+  // 대시보드/지원현황 캐시 무효화
+  revalidatePath("/");
+
   return Response.json(
     { data: row } satisfies ApplicationResponse
   );
@@ -152,6 +156,9 @@ export async function DELETE(
   }
 
   await logEvent("application_delete", { application_id: id }, user.id);
+
+  // 대시보드/지원현황 캐시 무효화
+  revalidatePath("/");
 
   return new Response(null, { status: 204 });
 }

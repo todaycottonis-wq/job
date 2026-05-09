@@ -109,9 +109,13 @@ export function EssayDetail({ essayId }: { essayId: string }) {
 
   async function deleteQuestion(q: Question) {
     if (!confirm("이 문항을 삭제할까요?")) return;
-    await fetch(`/api/essays/${essayId}/questions/${q.id}`, {
+    const res = await fetch(`/api/essays/${essayId}/questions/${q.id}`, {
       method: "DELETE",
     });
+    if (!res.ok) {
+      toast.show("삭제에 실패했어요", { variant: "error" });
+      return;
+    }
     setEssay((prev) =>
       prev
         ? { ...prev, essay_questions: prev.essay_questions.filter((x) => x.id !== q.id) }
@@ -124,7 +128,11 @@ export function EssayDetail({ essayId }: { essayId: string }) {
     if (!essay) return;
     if (!confirm(`'${essay.company_name}' 자소서 전체를 삭제할까요? 모든 문항도 사라져요.`))
       return;
-    await fetch(`/api/essays/${essayId}`, { method: "DELETE" });
+    const res = await fetch(`/api/essays/${essayId}`, { method: "DELETE" });
+    if (!res.ok) {
+      toast.show("삭제에 실패했어요", { variant: "error" });
+      return;
+    }
     toast.show("자소서를 삭제했어요", { variant: "success" });
     router.push("/essays");
   }
@@ -136,15 +144,25 @@ export function EssayDetail({ essayId }: { essayId: string }) {
     const newIdx = essay.essay_questions.findIndex((q) => q.id === over.id);
     if (oldIdx < 0 || newIdx < 0) return;
 
-    const reordered = arrayMove(essay.essay_questions, oldIdx, newIdx);
+    const original = essay.essay_questions;
+    const reordered = arrayMove(original, oldIdx, newIdx);
     setEssay({ ...essay, essay_questions: reordered });
 
-    // 서버에 새 순서 저장 (best-effort)
-    await fetch(`/api/essays/${essayId}/questions/reorder`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ids: reordered.map((q) => q.id) }),
-    });
+    // 서버에 새 순서 저장 — 실패 시 UI를 원래대로 되돌림
+    try {
+      const res = await fetch(`/api/essays/${essayId}/questions/reorder`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: reordered.map((q) => q.id) }),
+      });
+      if (!res.ok) {
+        setEssay((prev) => (prev ? { ...prev, essay_questions: original } : prev));
+        toast.show("순서 저장에 실패했어요", { variant: "error" });
+      }
+    } catch {
+      setEssay((prev) => (prev ? { ...prev, essay_questions: original } : prev));
+      toast.show("순서 저장에 실패했어요", { variant: "error" });
+    }
   }
 
   if (loading) {
