@@ -60,9 +60,12 @@ export function QuestionEditor({
   const debouncedCountMode = useDebounce(countMode, 500);
   const debouncedAnswer = useDebounce(answer, 1500);
 
-  // 초기 fetch
+  // 초기 fetch (문항 전환 포함)
   useEffect(() => {
     let cancelled = false;
+    // 문항이 바뀔 때마다 autosave 차단을 다시 켠다 — 새 문항의 초기값이
+    // debounce 타이머를 통과해 자동 저장으로 이어지지 않도록.
+    initialLoadRef.current = true;
     (async () => {
       setLoading(true);
       try {
@@ -102,14 +105,14 @@ export function QuestionEditor({
     };
   }, [essayId, questionId, router, toast]);
 
-  // 자동 저장 effect
+  // 자동 저장 effect — 성공 시 true 반환
   const save = useCallback(
     async (payload: {
       content?: string;
       char_limit?: number;
       count_mode?: CountMode;
       answer?: string;
-    }) => {
+    }): Promise<boolean> => {
       setSaveState("saving");
       try {
         const res = await fetch(
@@ -122,19 +125,26 @@ export function QuestionEditor({
         );
         if (!res.ok) {
           setSaveState("error");
-          return;
+          return false;
         }
         setSaveState("saved");
+        return true;
       } catch {
         setSaveState("error");
+        return false;
       }
     },
     [essayId, questionId]
   );
 
-  // 디바운스된 값이 바뀌면 저장 (단 초기 로드 직후엔 X)
+  // 디바운스된 값이 바뀌면 저장.
+  // 가드:
+  //   1) 초기 로드 직후에는 저장 X (initialLoadRef)
+  //   2) 로드된 question.id가 현재 questionId prop과 다르면 저장 X
+  //      → 문항 전환 도중에 이전 debounced 값이 새 문항으로 PATCH 되는 사고 방지
   useEffect(() => {
     if (initialLoadRef.current || !question) return;
+    if (question.id !== questionId) return;
     void save({
       content: debouncedContent,
       char_limit: debouncedCharLimit,
@@ -168,8 +178,14 @@ export function QuestionEditor({
   }
 
   async function handleManualSave() {
-    await save({ content, char_limit: charLimit, count_mode: countMode, answer });
-    toast.show("저장했어요", { variant: "success", duration: 1500 });
+    const ok = await save({ content, char_limit: charLimit, count_mode: countMode, answer });
+    if (ok) {
+      toast.show("저장했어요", { variant: "success", duration: 1500 });
+    } else {
+      toast.show("저장에 실패했어요. 잠시 후 다시 시도해주세요.", {
+        variant: "error",
+      });
+    }
   }
 
   if (loading || !essay || !question) {
