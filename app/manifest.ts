@@ -29,12 +29,6 @@ export default function manifest(): MetadataRoute.Manifest {
         url: "/applications",
       },
       {
-        name: "캘린더",
-        short_name: "캘린더",
-        description: "면접·마감 일정 확인",
-        url: "/calendar",
-      },
-      {
         name: "문서함",
         short_name: "문서",
         description: "이력서·자소서 보관함",

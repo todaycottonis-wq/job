@@ -19,9 +19,9 @@ import type { ApplicationStatus } from "@/types/database";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "취준 대시보드 — 지원 현황·일정 한눈에",
+  title: "취준 대시보드 — 지원 현황 한눈에",
   description:
-    "오늘 지원 몇 건, 이번 주 면접 무엇, 합격률은 어떤가. 커리업 대시보드에서 한 화면에 정리해드려요.",
+    "오늘 지원 몇 건, 면접 진행 상태, 합격률은 어떤가. 커리업 대시보드에서 한 화면에 정리해드려요.",
 };
 
 const IN_PROGRESS_STATUSES: ApplicationStatus[] = [
@@ -42,14 +42,6 @@ interface RecentApp {
   companies: { name: string } | null;
 }
 
-interface UpcomingEvent {
-  id: string;
-  title: string;
-  starts_at: string;
-  event_type: string;
-  location: string | null;
-}
-
 export default async function DashboardPage() {
   const supabase = await createClient();
   const {
@@ -58,8 +50,6 @@ export default async function DashboardPage() {
   if (!user) return null;
 
   const now = new Date();
-  const sevenDaysLater = new Date(now);
-  sevenDaysLater.setDate(now.getDate() + 7);
   const thirtyDaysAgo = new Date(now);
   thirtyDaysAgo.setDate(now.getDate() - 30);
 
@@ -72,7 +62,6 @@ export default async function DashboardPage() {
     { count: offerCount },
     { count: thisMonthCount },
     { data: recentApps },
-    { data: upcoming },
     { data: allStatuses },
     { data: monthlyApps },
   ] = await Promise.all([
@@ -86,14 +75,6 @@ export default async function DashboardPage() {
       .select("id, status, position, applied_at, deadline, updated_at, companies(name)")
       .eq("user_id", user.id)
       .order("updated_at", { ascending: false })
-      .limit(5),
-    supabase
-      .from("calendar_events")
-      .select("id, title, starts_at, event_type, location")
-      .eq("user_id", user.id)
-      .gte("starts_at", now.toISOString())
-      .lte("starts_at", sevenDaysLater.toISOString())
-      .order("starts_at", { ascending: true })
       .limit(5),
     supabase
       .from("job_applications")
@@ -139,7 +120,7 @@ export default async function DashboardPage() {
         <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">
           {isEmpty
             ? "커리업에 오신 걸 환영해요. 첫 지원부터 등록해볼까요?"
-            : "지원 현황과 다가오는 일정을 한눈에 보세요."}
+            : "지원 현황을 한눈에 보세요."}
         </p>
       </div>
 
@@ -201,8 +182,8 @@ export default async function DashboardPage() {
           </Link>
         </div>
       ) : (
-        <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <Card className="lg:col-span-2">
+        <div className="mt-6">
+          <Card>
             <CardHeader title="최근 지원" link="/applications" linkLabel="전체 보기" />
             {!recentApps || recentApps.length === 0 ? (
               <p className="px-4 py-8 text-sm text-zinc-400 text-center">
@@ -224,35 +205,6 @@ export default async function DashboardPage() {
                         {app.deadline && <DDayBadge date={app.deadline} prefix="마감 D" />}
                       </div>
                     </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </Card>
-
-          <Card>
-            <CardHeader title="이번 주 일정" link="/calendar" linkLabel="캘린더" />
-            {!upcoming || upcoming.length === 0 ? (
-              <p className="px-4 py-8 text-sm text-zinc-400 text-center">
-                예정된 일정이 없어요.
-              </p>
-            ) : (
-              <ul className="divide-y divide-zinc-100 dark:divide-zinc-800">
-                {(upcoming as UpcomingEvent[]).map((ev) => (
-                  <li key={ev.id} className="px-4 py-3">
-                    <div className="flex items-start justify-between gap-2">
-                      <p className="text-sm font-medium truncate flex-1">{ev.title}</p>
-                      <DDayBadge date={ev.starts_at} />
-                    </div>
-                    <p className="text-xs text-zinc-400 mt-0.5">
-                      {new Date(ev.starts_at).toLocaleString("ko-KR", {
-                        month: "2-digit",
-                        day: "2-digit",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                      {ev.location && ` · ${ev.location}`}
-                    </p>
                   </li>
                 ))}
               </ul>

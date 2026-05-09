@@ -33,7 +33,6 @@ export async function resetAllData(): Promise<void> {
 
   // 데이터 row 삭제 (RLS 통과)
   await Promise.all([
-    supabase.from("calendar_events").delete().eq("user_id", user.id),
     supabase.from("documents").delete().eq("user_id", user.id),
     supabase.from("folders").delete().eq("user_id", user.id),
     supabase.from("ai_feedback").delete().eq("user_id", user.id),

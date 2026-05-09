@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
-  Calendar,
   Briefcase,
   FileText,
   Sparkles,
@@ -20,7 +19,6 @@ import { logout } from "@/app/actions/auth";
 
 const NAV_ITEMS = [
   { href: "/", label: "대시보드", icon: LayoutDashboard, badge: null },
-  { href: "/calendar", label: "캘린더", icon: Calendar, badge: null },
   { href: "/applications", label: "지원현황", icon: Briefcase, badge: null },
   { href: "/essays", label: "자소서", icon: PenLine, badge: null },
   { href: "/documents", label: "문서함", icon: FileText, badge: null },

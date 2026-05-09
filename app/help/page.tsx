@@ -15,12 +15,6 @@ export default function HelpPage() {
           <Step n={5} text="상단 탭에서 상태별로 필터링할 수 있습니다." />
         </Section>
 
-        <Section title="캘린더">
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            면접 일정과 지원 마감일을 한눈에 확인하는 기능입니다. 곧 업데이트될 예정입니다.
-          </p>
-        </Section>
-
         <Section title="문서함">
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
             이력서, 자기소개서, 포트폴리오를 저장하고 버전을 관리하는 기능입니다. 곧 업데이트될 예정입니다.

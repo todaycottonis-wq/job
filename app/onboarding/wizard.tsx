@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Briefcase, CalendarCheck, Sparkles, ArrowRight, X } from "lucide-react";
+import { Briefcase, Sparkles, ArrowRight, X } from "lucide-react";
 import {
   completeOnboarding,
   logOnboardingStep,
@@ -14,12 +14,6 @@ const STEPS = [
     tag: "지원현황",
     title: "흩어진 지원 기록,\n한 곳에서",
     desc: "지원한 회사와 진행 상태를 한 화면에서 추적하세요. 서류·면접·합격 여부까지 빠짐없이 기록할 수 있어요.",
-  },
-  {
-    icon: <CalendarCheck size={36} strokeWidth={1.5} className="text-[#3182F6]" />,
-    tag: "캘린더",
-    title: "면접·마감일을\n놓치지 않게",
-    desc: "면접 일정과 지원 마감일을 캘린더에서 한눈에 확인하세요. 중요한 날짜를 놓쳐 후회하는 일이 없어집니다.",
   },
   {
     icon: <Sparkles size={36} strokeWidth={1.5} className="text-[#3182F6]" />,
