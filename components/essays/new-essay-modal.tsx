@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { X } from "lucide-react";
+import { useToast } from "@/components/ui/toast";
 
 interface Props {
   onClose: () => void;
@@ -18,11 +19,13 @@ function todayYmd(): string {
 
 export function NewEssayModal({ onClose, onCreated }: Props) {
   const router = useRouter();
+  const toast = useToast();
   const [companyName, setCompanyName] = useState("");
   const [jobTitle, setJobTitle] = useState("");
   const [jdUrl, setJdUrl] = useState("");
   const [appliedDate, setAppliedDate] = useState(todayYmd());
   const [deadline, setDeadline] = useState("");
+  const [addToApplications, setAddToApplications] = useState(true);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -51,6 +54,41 @@ export function NewEssayModal({ onClose, onCreated }: Props) {
         setError(json.error ?? "생성 실패");
         return;
       }
+
+      // 사용자가 동의했다면, 같은 회사·직무로 '작성중' 지원도 함께 생성
+      if (addToApplications) {
+        try {
+          const appRes = await fetch("/api/applications", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              company_name: companyName.trim(),
+              position: jobTitle.trim(),
+              status: "drafting",
+              job_url: jdUrl.trim() || null,
+              // 아직 지원 전이므로 applied_at은 비워둠
+              deadline: deadline || null,
+            }),
+          });
+          if (!appRes.ok) {
+            toast.show(
+              "자소서는 생성됐는데 지원현황 추가는 실패했어요. 지원현황에서 직접 추가해주세요.",
+              { variant: "error", duration: 4500 }
+            );
+          } else {
+            toast.show("지원현황에도 '작성중'으로 추가했어요", {
+              variant: "success",
+              duration: 2500,
+            });
+          }
+        } catch {
+          toast.show(
+            "자소서는 생성됐는데 지원현황 추가는 실패했어요.",
+            { variant: "error", duration: 4500 }
+          );
+        }
+      }
+
       onCreated?.();
       // 자동으로 Lv2로 이동
       router.push(`/essays/${json.data.id}`);
@@ -127,6 +165,23 @@ export function NewEssayModal({ onClose, onCreated }: Props) {
               />
             </Field>
           </div>
+
+          <label className="flex items-start gap-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-100 dark:border-zinc-800 p-3 cursor-pointer hover:bg-zinc-100/70 dark:hover:bg-zinc-800 transition-colors">
+            <input
+              type="checkbox"
+              checked={addToApplications}
+              onChange={(e) => setAddToApplications(e.target.checked)}
+              className="mt-0.5 rounded border-zinc-300 text-[#3182F6] focus:ring-[#3182F6]"
+            />
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
+                지원현황에도 &lsquo;작성중&rsquo;으로 추가
+              </p>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                같은 회사·직무로 지원 카드를 만들어요. 나중에 상태를 바꾸면 돼요.
+              </p>
+            </div>
+          </label>
 
           {error && <p className="text-sm text-red-600">{error}</p>}
 
