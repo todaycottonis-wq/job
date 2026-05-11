@@ -24,6 +24,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import type { Json } from "@/types/database";
+import { AdminAutoRefresh } from "./auto-refresh";
 
 interface LogRow {
   event: string;
@@ -241,13 +242,16 @@ export function AdminDashboard({
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight mb-1">
-          관리자 대시보드
-        </h1>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">
-          {adminEmail} · 최근 {lookbackDays}일 활동
-        </p>
+      <div className="flex items-start justify-between gap-3 flex-wrap">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight mb-1">
+            관리자 대시보드
+          </h1>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            {adminEmail} · 최근 {lookbackDays}일 활동
+          </p>
+        </div>
+        <AdminAutoRefresh />
       </div>
 
       {/* 통계 카드 */}
