@@ -49,7 +49,7 @@ export const metadata: Metadata = {
     description: APP_DESC,
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: `${APP_NAME_KO} · 취준 현황을 한눈에`,
     description: APP_DESC,
   },
