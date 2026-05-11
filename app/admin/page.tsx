@@ -38,7 +38,7 @@ export default async function AdminPage() {
     admin.from("ai_feedback").select("*", { count: "exact", head: true }),
     admin
       .from("usage_logs")
-      .select("event, user_id, created_at")
+      .select("event, user_id, created_at, props")
       .gte("created_at", sinceIso)
       .order("created_at", { ascending: false }),
     admin

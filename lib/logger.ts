@@ -29,7 +29,9 @@ export type UsageEvent =
   | "essay_question_create"
   | "essay_question_update"
   | "essay_question_delete"
-  | "essay_question_reorder";
+  | "essay_question_reorder"
+  | "landing_view"
+  | "landing_cta_click";
 
 export async function logEvent(
   event: UsageEvent,

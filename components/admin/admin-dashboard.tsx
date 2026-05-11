@@ -19,12 +19,17 @@ import {
   Sparkles,
   CheckCircle2,
   Clock,
+  Globe,
+  MousePointerClick,
+  TrendingUp,
 } from "lucide-react";
+import type { Json } from "@/types/database";
 
 interface LogRow {
   event: string;
   user_id: string | null;
   created_at: string;
+  props?: Json;
 }
 interface ProfileRow {
   user_id: string;
@@ -67,6 +72,15 @@ const EVENT_COLORS: Record<string, string> = {
   document_delete: "bg-red-100 text-red-700",
   document_upload: "bg-cyan-100 text-cyan-700",
   admin_view: "bg-zinc-100 text-zinc-600",
+  essay_create: "bg-violet-100 text-violet-700",
+  essay_update: "bg-violet-100 text-violet-700",
+  essay_delete: "bg-red-100 text-red-700",
+  essay_question_create: "bg-violet-100 text-violet-700",
+  essay_question_update: "bg-violet-100 text-violet-700",
+  essay_question_delete: "bg-red-100 text-red-700",
+  essay_question_reorder: "bg-violet-100 text-violet-700",
+  landing_view: "bg-orange-100 text-orange-700",
+  landing_cta_click: "bg-orange-100 text-orange-700",
 };
 
 function eventBadgeCls(event: string) {
@@ -157,6 +171,38 @@ export function AdminDashboard({
     return logs.filter((l) => new Date(l.created_at) >= cutoff).length;
   }, [logs]);
 
+  // 랜딩 페이지 집계
+  const landingStats = useMemo(() => {
+    const views = logs.filter((l) => l.event === "landing_view");
+    const clicks = logs.filter((l) => l.event === "landing_cta_click");
+    const signups = logs.filter((l) => l.event === "signup");
+
+    // 고유 방문자: props.vid 기준
+    const uniqueVids = new Set<string>();
+    for (const v of views) {
+      const vid =
+        v.props && typeof v.props === "object"
+          ? ((v.props as Record<string, unknown>).vid as string | undefined)
+          : undefined;
+      if (vid) uniqueVids.add(vid);
+    }
+
+    return {
+      views: views.length,
+      uniqueVisitors: uniqueVids.size,
+      ctaClicks: clicks.length,
+      signups: signups.length,
+      ctaRate: views.length > 0
+        ? Math.round((clicks.length / views.length) * 100)
+        : 0,
+      conversionRate: views.length > 0
+        ? Math.round((signups.length / views.length) * 100)
+        : 0,
+    };
+  }, [logs]);
+
+  const hasLandingData = landingStats.views > 0;
+
   // 리텐션: 가입 D일째 활동한 유저 / 가입한 지 D일 이상 지난 유저
   const retentionData = useMemo(() => {
     const now = Date.now();
@@ -233,6 +279,48 @@ export function AdminDashboard({
           value={stats.aiRequests}
         />
       </div>
+
+      {/* 랜딩 페이지 */}
+      <Card>
+        <CardHeader
+          title="랜딩 페이지"
+          subtitle={
+            hasLandingData
+              ? `최근 ${lookbackDays}일`
+              : "아직 트래킹 이벤트가 없어요. 트래킹 스크립트가 활성화돼 있는지 확인해보세요."
+          }
+        />
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 px-4 pb-4">
+          <MiniStat
+            icon={<Globe size={14} className="text-orange-500" />}
+            label="페이지뷰"
+            value={landingStats.views}
+          />
+          <MiniStat
+            icon={<Users size={14} className="text-orange-500" />}
+            label="고유 방문자"
+            value={landingStats.uniqueVisitors}
+          />
+          <MiniStat
+            icon={<MousePointerClick size={14} className="text-orange-500" />}
+            label="CTA 클릭"
+            value={landingStats.ctaClicks}
+            sub={
+              landingStats.views > 0 ? `${landingStats.ctaRate}% 클릭률` : undefined
+            }
+          />
+          <MiniStat
+            icon={<TrendingUp size={14} className="text-green-600" />}
+            label="가입 전환"
+            value={`${landingStats.conversionRate}%`}
+            sub={
+              hasLandingData
+                ? `가입 ${landingStats.signups}건 / 뷰 ${landingStats.views}건`
+                : undefined
+            }
+          />
+        </div>
+      </Card>
 
       {/* 최근 7일 합계 + 차트 */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
@@ -524,6 +612,33 @@ function StatCard({
           </p>
         )}
       </div>
+    </div>
+  );
+}
+
+function MiniStat({
+  icon,
+  label,
+  value,
+  sub,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: number | string;
+  sub?: string;
+}) {
+  return (
+    <div className="rounded-lg bg-zinc-50 dark:bg-zinc-800/40 p-3">
+      <div className="flex items-center gap-1.5">
+        {icon}
+        <p className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">
+          {label}
+        </p>
+      </div>
+      <p className="mt-1.5 text-xl font-bold tracking-tight">{value}</p>
+      {sub && (
+        <p className="text-[10px] text-zinc-400 mt-0.5 truncate">{sub}</p>
+      )}
     </div>
   );
 }
