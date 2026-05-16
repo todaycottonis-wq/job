@@ -208,7 +208,7 @@ export default function ApplicationsPage() {
         <h1 className="text-2xl font-semibold tracking-tight">지원현황</h1>
         <button
           onClick={openCreate}
-          className="rounded-lg bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-700 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200 transition-colors"
+          className="inline-flex items-center rounded-md bg-zinc-900 px-2 py-1 text-[11px] font-medium text-white hover:bg-zinc-700 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200 transition-colors"
         >
           + 지원 추가
         </button>

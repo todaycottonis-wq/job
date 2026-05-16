@@ -106,18 +106,18 @@ export function FolderModal({ onClose, onCreated }: Props) {
 
           {error && <p className="text-sm text-red-600">{error}</p>}
 
-          <div className="flex justify-end gap-2 pt-1 pb-2">
+          <div className="flex justify-end gap-1.5 pt-1 pb-2">
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg border border-zinc-200 dark:border-zinc-700 px-4 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+              className="rounded-md border border-zinc-200 dark:border-zinc-700 px-3 py-1.5 text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
             >
               취소
             </button>
             <button
               type="submit"
               disabled={pending}
-              className="rounded-lg bg-[#3182F6] px-4 py-2 text-sm font-medium text-white hover:bg-[#1a6fe8] disabled:opacity-50 transition-colors"
+              className="rounded-md bg-[#3182F6] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#1a6fe8] disabled:opacity-50 transition-colors"
             >
               {pending ? "생성 중..." : "생성"}
             </button>

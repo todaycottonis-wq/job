@@ -104,21 +104,21 @@ export function DocumentsView() {
           )}
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex gap-1.5">
           {!currentFolder && (
             <button
               onClick={() => setShowFolder(true)}
-              className="flex items-center gap-1 rounded-lg border border-zinc-200 dark:border-zinc-700 px-3 py-1.5 text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+              className="inline-flex items-center gap-1 rounded-md border border-zinc-200 dark:border-zinc-700 px-2 py-1 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
             >
-              <Plus size={13} />
+              <Plus size={11} />
               폴더 추가
             </button>
           )}
           <button
             onClick={() => setShowUpload(true)}
-            className="flex items-center gap-1 rounded-lg bg-[#3182F6] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#1a6fe8] transition-colors"
+            className="inline-flex items-center gap-1 rounded-md bg-[#3182F6] px-2 py-1 text-[11px] font-medium text-white hover:bg-[#1a6fe8] transition-colors"
           >
-            <Upload size={13} />
+            <Upload size={11} />
             파일 업로드
           </button>
         </div>

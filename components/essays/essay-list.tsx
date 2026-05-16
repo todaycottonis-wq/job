@@ -65,9 +65,9 @@ export function EssayList() {
         <h1 className="text-2xl font-bold tracking-tight">자소서</h1>
         <button
           onClick={() => setShowNew(true)}
-          className="inline-flex items-center gap-1 rounded-lg bg-[#3182F6] hover:bg-[#1a6fe8] active:bg-[#1560d4] px-3 py-1.5 text-sm font-semibold text-white transition-colors"
+          className="inline-flex items-center gap-1 rounded-md bg-[#3182F6] hover:bg-[#1a6fe8] active:bg-[#1560d4] px-2 py-1 text-[11px] font-semibold text-white transition-colors"
         >
-          <Plus size={14} />
+          <Plus size={11} />
           새 자소서
         </button>
       </div>

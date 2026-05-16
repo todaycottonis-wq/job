@@ -299,18 +299,18 @@ export function ApplicationForm({
             <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
           )}
 
-          <div className="flex justify-end gap-2 pt-1 pb-2">
+          <div className="flex justify-end gap-1.5 pt-1 pb-2">
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg border border-zinc-200 dark:border-zinc-700 px-4 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+              className="rounded-md border border-zinc-200 dark:border-zinc-700 px-3 py-1.5 text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
             >
               취소
             </button>
             <button
               type="submit"
               disabled={pending}
-              className="rounded-lg bg-zinc-900 dark:bg-zinc-50 px-4 py-2 text-sm font-medium text-white dark:text-zinc-900 hover:bg-zinc-700 dark:hover:bg-zinc-200 disabled:opacity-50 transition-colors"
+              className="rounded-md bg-zinc-900 dark:bg-zinc-50 px-3 py-1.5 text-xs font-medium text-white dark:text-zinc-900 hover:bg-zinc-700 dark:hover:bg-zinc-200 disabled:opacity-50 transition-colors"
             >
               {pending ? "저장 중..." : mode === "create" ? "추가" : "저장"}
             </button>
